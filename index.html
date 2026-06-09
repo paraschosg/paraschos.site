@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>George Paraschos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080D1A;
+      --bg2:       #0E1525;
+      --bg3:       #151E30;
+      --accent:    #F0A500;
+      --accent2:   #FFD166;
+      --text:      #DDE6F5;
+      --muted:     #7A90B8;
+      --border:    #1C2A45;
+      --mono:      'JetBrains Mono', monospace;
+      --sans:      'Space Grotesk', sans-serif;
+      --body:      'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      line-height: 1.6;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 64px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem 0;
+      border-right: 1px solid var(--border);
+      z-index: 100;
+    }
+
+    .sidebar-monogram {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      color: var(--muted);
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .sidebar-line {
+      width: 1px;
+      flex: 1;
+      background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+      margin: 1.5rem 0;
+      opacity: 0.4;
+    }
+
+    .sidebar-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      align-items: center;
+    }
+
+    .sidebar-links a {
+      color: var(--muted);
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-links a:hover { color: var(--accent); }
+
+    .sidebar-links svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* ── MAIN ── */
+    main {
+      margin-left: 64px;
+      width: calc(100% - 64px);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 64px;
+      right: 0;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 3rem;
+      gap: 2.5rem;
+      background: rgba(8, 13, 26, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 99;
+    }
+
+    nav a {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: lowercase;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    nav a::before {
+      content: './';
+      color: var(--accent);
+      opacity: 0;
+      transition: opacity 0.2s;
+      margin-right: 2px;
+    }
+
+    nav a:hover { color: var(--text); }
+    nav a:hover::before { opacity: 1; }
+
+    /* ── SECTIONS ── */
+    section {
+      padding: 6rem 5rem;
+      max-width: 1000px;
+    }
+
+    section:first-of-type { padding-top: 100px; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hero-tag::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    h1.hero-name {
+      font-family: var(--sans);
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+    }
+
+    h1.hero-name .first { color: var(--text); }
+    h1.hero-name .last {
+      color: transparent;
+      -webkit-text-stroke: 1.5px var(--accent);
+    }
+
+    .hero-role {
+      font-family: var(--sans);
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      font-weight: 300;
+      color: var(--muted);
+      margin-top: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-desc {
+      max-width: 480px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+      margin-bottom: 3rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.8rem;
+      background: var(--accent);
+      color: var(--bg);
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-2px); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.8rem;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 500;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: border-color 0.2s, color 0.2s, transform 0.15s;
+    }
+
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* Hero grid decoration */
+    .hero-grid {
+      position: absolute;
+      right: -60px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 380px;
+      height: 380px;
+      opacity: 0.06;
+      pointer-events: none;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 3rem;
+    }
+
+    .section-tag {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    h2.section-title {
+      font-family: var(--sans);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .about-text p {
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+      line-height: 1.8;
+    }
+
+    .about-text p strong { color: var(--text); font-weight: 500; }
+
+    .about-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .stat-card .label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .stat-card .value span {
+      color: var(--accent);
+    }
+
+    /* ── SKILLS ── */
+    .skills-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    .skill-group h3 {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .skill-tag {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--bg2);
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .skill-tag:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── PROJECTS ── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .project-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: border-color 0.2s, transform 0.2s;
+      text-decoration: none;
+    }
+
+    .project-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+
+    .project-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(240, 165, 0, 0.1);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .project-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--accent);
+      fill: none;
+    }
+
+    .project-card h3 {
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .project-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .project-tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: auto;
+    }
+
+    .tech-pill {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
+      background: var(--bg3);
+      color: var(--muted);
+    }
+
+    .project-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+    }
+
+    .project-arrow span {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .project-arrow svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--accent);
+      fill: none;
+      transition: transform 0.2s;
+    }
+
+    .project-card:hover .project-arrow svg {
+      transform: translate(3px, -3px);
+    }
+
+    /* ── CONTACT ── */
+    .contact-inner {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 3.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-inner::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(240,165,0,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .contact-inner h3 {
+      font-family: var(--sans);
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .contact-inner p {
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.8;
+    }
+
+    .contact-email {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: var(--mono);
+      font-size: 1rem;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 0.8rem 1.2rem;
+      border: 1px solid rgba(240,165,0,0.25);
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .contact-email:hover { background: rgba(240,165,0,0.05); }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-left: 64px;
+      padding: 2rem 5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    footer p {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    footer p span { color: var(--accent); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      main { margin-left: 0; width: 100%; }
+      nav { left: 0; padding: 0 1.5rem; gap: 1.5rem; }
+      footer { margin-left: 0; padding: 1.5rem 2rem; }
+      section { padding: 4rem 1.5rem; }
+      section:first-of-type { padding-top: 80px; }
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .contact-inner { padding: 2rem; }
+      .hero-grid { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <span class="sidebar-monogram">George Paraschos</span>
+    <div class="sidebar-line"></div>
+    <div class="sidebar-links">
+      <!-- GitHub -->
+      <a href="https://github.com/paraschosg872" target="_blank" title="GitHub">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+        </svg>
+      </a>
+      <!-- LinkedIn -->
+      <a href="mailto:george@paraschos.site" title="Email">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+        </svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#about">about</a>
+    <a href="#skills">skills</a>
+    <a href="#projects">projects</a>
+    <a href="#contact">contact</a>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-tag">available for opportunities</div>
+      <h1 class="hero-name">
+        <span class="first">George<br></span>
+        <span class="last">Paraschos</span>
+      </h1>
+      <p class="hero-role">Software Engineer &amp; CS Student</p>
+      <p class="hero-desc">
+        Studying Information &amp; Communication Systems Engineering at the University of the Aegean.
+        I build backend systems, distributed applications, and anything that runs on a server.
+      </p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn-primary">View my work</a>
+        <a href="#contact" class="btn-ghost">Get in touch</a>
+      </div>
+
+      <!-- Decorative grid -->
+      <svg class="hero-grid" viewBox="0 0 380 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="1.5" fill="#F0A500"/>
+          </pattern>
+        </defs>
+        <rect width="380" height="380" fill="url(#grid)"/>
+      </svg>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="section-header reveal">
+        <span class="section-tag">01</span>
+        <h2 class="section-title">About</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-text reveal">
+          <p>
+            I'm a final-year student in the <strong>Department of Information and Communication Systems Engineering</strong>
+            at the University of the Aegean, where I've been diving deep into algorithms, distributed systems, and cryptography.
+          </p>
+          <p>
+            My background spans both backend engineering and systems-level thinking —
+            from designing state machines in <strong>Spring Boot</strong> to reasoning about
+            distributed consensus algorithms and public-key cryptography.
+          </p>
+          <p>
+            I enjoy building things that actually work under pressure: systems that handle concurrency correctly,
+            APIs that fail gracefully, and code that future-me won't hate.
+          </p>
+        </div>
+
+        <div class="about-stats reveal">
+          <div class="stat-card">
+            <div class="label">Currently studying</div>
+            <div class="value">Information &amp; Communication<br>Systems Engineering</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">University</div>
+            <div class="value">University of the Aegean</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Contact</div>
+            <div class="value"><span>george@paraschos.site</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills">
+      <div class="section-header reveal">
+        <span class="section-tag">02</span>
+        <h2 class="section-title">Skills</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="skills-groups reveal">
+        <div class="skill-group">
+          <h3>Languages</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">Java</span>
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">HTML / CSS</span>
+            <span class="skill-tag">SQL</span>
+            <span class="skill-tag">Bash</span>
+          </div>
+        </div>
+        <div class="skill-group">
+          <h3>Frameworks &amp; Tools</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">Spring Boot</span>
+            <span class="skill-tag">Spring Data JPA</span>
+            <span class="skill-tag">Hibernate</span>
+            <span class="skill-tag">MySQL</span>
+            <span class="skill-tag">Git</span>
+            <span class="skill-tag">Maven</span>
+            <span class="skill-tag">REST APIs</span>
+          </div>
+        </div>
+        <div class="skill-group">
+          <h3>Computer Science</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">Algorithms &amp; Complexity</span>
+            <span class="skill-tag">Distributed Systems</span>
+            <span class="skill-tag">Cryptography</span>
+            <span class="skill-tag">Concurrency</span>
+            <span class="skill-tag">Data Structures</span>
+            <span class="skill-tag">Operating Systems</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects">
+      <div class="section-header reveal">
+        <span class="section-tag">03</span>
+        <h2 class="section-title">Projects</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="projects-grid">
+
+        <a class="project-card reveal" href="https://github.com/paraschosg872/airline-management-system" target="_blank">
+          <div class="project-icon">
+            <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+            </svg>
+          </div>
+          <h3>Airline Management System</h3>
+          <p>
+            Full-stack web application for managing flights, bookings, and passengers.
+            Features a flight state machine (Scheduled → Boarding → Departed → Arrived),
+            RESTful API backend, and a vanilla JS frontend.
+          </p>
+          <div class="project-tech">
+            <span class="tech-pill">Spring Boot</span>
+            <span class="tech-pill">Spring Data JPA</span>
+            <span class="tech-pill">MySQL</span>
+            <span class="tech-pill">JavaScript</span>
+            <span class="tech-pill">HTML/CSS</span>
+          </div>
+          <div class="project-arrow">
+            <span>View on GitHub</span>
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            </svg>
+          </div>
+        </a>
+
+        <a class="project-card reveal" href="https://github.com/paraschosg872" target="_blank">
+          <div class="project-icon">
+            <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+              <path d="M8 21h8M12 17v4"/>
+            </svg>
+          </div>
+          <h3>Distributed Systems Labs</h3>
+          <p>
+            Implementations of classic distributed algorithms: Ricart-Agrawala mutual exclusion,
+            Lamport &amp; vector clocks, Bully and Chang-Roberts ring election, and Pastry DHT routing.
+          </p>
+          <div class="project-tech">
+            <span class="tech-pill">Java</span>
+            <span class="tech-pill">UDP Sockets</span>
+            <span class="tech-pill">Concurrency</span>
+            <span class="tech-pill">Threading</span>
+          </div>
+          <div class="project-arrow">
+            <span>View on GitHub</span>
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            </svg>
+          </div>
+        </a>
+
+        <a class="project-card reveal" href="https://github.com/paraschosg872" target="_blank">
+          <div class="project-icon">
+            <svg viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+          </div>
+          <h3>Cryptography Implementations</h3>
+          <p>
+            Implementations and analysis of RSA, ElGamal, and DSA schemes. Includes explorations of
+            Håstad's broadcast attack, group theory problems in Z*ₙ, and related vulnerabilities.
+          </p>
+          <div class="project-tech">
+            <span class="tech-pill">Python</span>
+            <span class="tech-pill">RSA</span>
+            <span class="tech-pill">ElGamal</span>
+            <span class="tech-pill">Number Theory</span>
+          </div>
+          <div class="project-arrow">
+            <span>View on GitHub</span>
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 17L17 7M17 7H7M17 7v10"/>
+            </svg>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+      <div class="section-header reveal">
+        <span class="section-tag">04</span>
+        <h2 class="section-title">Contact</h2>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="contact-inner reveal">
+        <h3>Let's build something together.</h3>
+        <p>
+          Whether it's a collaboration, an internship, or just a conversation about distributed systems —
+          my inbox is open. I'll do my best to get back to you promptly.
+        </p>
+        <a href="mailto:george@paraschos.site" class="contact-email">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+          george@paraschos.site
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Designed &amp; built by <span>George Paraschos</span></p>
+    <p>george<span>@</span>paraschos.site</p>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
