@@ -64,6 +64,9 @@
   <div class="tab" data-file="activity" onclick="switchTab(this, 'activity')">
     <span class="tab-icon log" style="color:#CE9178">⊙</span> activity.log
   </div>
+  <div class="tab" data-file="contributions" onclick="switchTab(this, 'contributions')">
+    <span class="tab-icon" style="color:#4EC9B0">▦</span> contributions.svg
+  </div>
 </div>
 
 <div class="editor-area">
@@ -106,6 +109,9 @@
       </div>
       <div class="sidebar-item" onclick="switchTabById('activity')">
         <span class="file-icon" style="color:#CE9178">⊙</span> activity.log
+      </div>
+      <div class="sidebar-item" onclick="switchTabById('contributions')">
+        <span class="file-icon" style="color:#4EC9B0">▦</span> contributions.svg
       </div>
     </div>
   </div>
@@ -355,6 +361,17 @@
         </div>
       </div>
     </div>
+    <!-- contributions.svg -->
+    <div class="file-section" id="file-contributions">
+      <div class="code-content">
+        <span class="line"><span class="c"># contributions.svg</span></span>
+        <span class="line"><span class="c"># GitHub contribution activity — paraschosg</span></span>
+        <span class="line"></span>
+        <div id="contributions-graph" style="padding: 16px 0;">
+          <span class="line" style="color:#858585">Loading contributions...</span>
+        </div>
+      </div>
+    </div>
   </div><!-- /editor -->
 </div><!-- /editor-area -->
 
@@ -366,6 +383,7 @@
     <span>UTF-8</span>
     <span>TypeScript</span>
     <span>Ln 1, Col 1</span>
+    <span id="status-clock"></span>
   </div>
 </div>
 

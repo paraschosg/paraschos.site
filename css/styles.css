@@ -387,3 +387,22 @@ body.light .pr { color: #001080; }
     pointer-events: none;
 }
 
+/* ── SMOOTH TAB ANIMATIONS ── */
+.file-section {
+    animation: none;
+}
+
+.file-section.fade-in {
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

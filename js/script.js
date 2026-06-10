@@ -13,10 +13,19 @@ function setLineNumbers(fileId) {
 // Tab switching
 function switchTab(tabEl, fileId) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.file-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.file-section').forEach(s => {
+        s.classList.remove('active');
+        s.classList.remove('fade-in');
+    });
     document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
     tabEl.classList.add('active');
-    document.getElementById('file-' + fileId).classList.add('active');
+    const section = document.getElementById('file-' + fileId);
+    section.classList.add('active');
+    // Trigger animation
+    requestAnimationFrame(() => {
+        section.classList.add('fade-in');
+    });
+    setTimeout(renderMinimap, 50);
 }
 
 function switchTabById(fileId) {
@@ -380,3 +389,131 @@ async function loadGitHubActivity() {
 }
 
 loadGitHubActivity();
+
+// Clock στο status bar
+function updateClock() {
+    const clock = document.getElementById('status-clock');
+    if (!clock) return;
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-GB', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    clock.textContent = time;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// Contributions Graph
+async function loadContributions() {
+    const container = document.getElementById('contributions-graph');
+    if (!container) return;
+
+    try {
+        // GitHub doesn't have a public contributions API so we use a proxy service
+        const username = 'paraschosg';
+        const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
+        const data = await res.json();
+
+        const contributions = data.contributions;
+        if (!contributions || contributions.length === 0) throw new Error('No data');
+
+        // Group by week
+        const weeks = [];
+        let week = [];
+        contributions.forEach((day, i) => {
+            week.push(day);
+            if (week.length === 7) {
+                weeks.push(week);
+                week = [];
+            }
+        });
+        if (week.length > 0) weeks.push(week);
+
+        const totalContributions = contributions.reduce((sum, d) => sum + d.count, 0);
+
+        // Color scale
+        const getColor = (count) => {
+            if (count === 0) return '#161b22';
+            if (count <= 3)  return '#0e4429';
+            if (count <= 6)  return '#006d32';
+            if (count <= 9)  return '#26a641';
+            return '#39d353';
+        };
+
+        const days = ['Mon', '', 'Wed', '', 'Fri', '', ''];
+        const months = [];
+        let lastMonth = -1;
+        weeks.forEach((week, wi) => {
+            const firstDay = week.find(d => d);
+            if (firstDay) {
+                const month = new Date(firstDay.date).getMonth();
+                if (month !== lastMonth) {
+                    months.push({ week: wi, name: new Date(firstDay.date).toLocaleDateString('en-GB', { month: 'short' }) });
+                    lastMonth = month;
+                }
+            }
+        });
+
+        // Build SVG
+        const cellSize = 12;
+        const gap = 3;
+        const offsetX = 30;
+        const offsetY = 28;
+        const svgWidth = weeks.length * (cellSize + gap) + offsetX;
+        const svgHeight = 7 * (cellSize + gap) + offsetY + 20;
+
+        let svg = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace">`;
+
+        // Month labels
+        months.forEach(m => {
+            const x = offsetX + m.week * (cellSize + gap);
+            svg += `<text x="${x}" y="16" fill="#858585" font-size="10">${m.name}</text>`;
+        });
+
+        // Day labels
+        days.forEach((day, i) => {
+            if (!day) return;
+            const y = offsetY + i * (cellSize + gap) + cellSize - 2;
+            svg += `<text x="0" y="${y}" fill="#858585" font-size="10">${day}</text>`;
+        });
+
+        // Cells
+        weeks.forEach((week, wi) => {
+            week.forEach((day, di) => {
+                const x = offsetX + wi * (cellSize + gap);
+                const y = offsetY + di * (cellSize + gap);
+                const color = getColor(day.count);
+                svg += `<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="2" fill="${color}">
+          <title>${day.date}: ${day.count} contribution${day.count !== 1 ? 's' : ''}</title>
+        </rect>`;
+            });
+        });
+
+        svg += '</svg>';
+
+        container.innerHTML = `
+      <div style="margin-bottom:16px">
+        <span style="color:#D4D4D4; font-size:14px">${totalContributions.toLocaleString()} contributions in the last year</span>
+      </div>
+      <div style="overflow-x:auto; padding-bottom:8px">${svg}</div>
+      <div style="display:flex; align-items:center; gap:6px; margin-top:12px; font-size:11px; color:#858585">
+        <span>Less</span>
+        <rect style="width:12px;height:12px;background:#161b22;display:inline-block;border-radius:2px"></rect>
+        <rect style="width:12px;height:12px;background:#0e4429;display:inline-block;border-radius:2px"></rect>
+        <rect style="width:12px;height:12px;background:#006d32;display:inline-block;border-radius:2px"></rect>
+        <rect style="width:12px;height:12px;background:#26a641;display:inline-block;border-radius:2px"></rect>
+        <rect style="width:12px;height:12px;background:#39d353;display:inline-block;border-radius:2px"></rect>
+        <span>More</span>
+      </div>
+    `;
+        
+
+    } catch(e) {
+        container.innerHTML = `
+      <span class="line" style="color:#F44747">// Error loading contributions</span>
+      <span class="line" style="color:#858585">// Visit <a href="https://github.com/paraschosg" target="_blank" style="color:#4EC9B0">github.com/paraschosg</a> directly.</span>
+    `;
+    }
+}
+
+loadContributions();
