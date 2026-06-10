@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 · George's corner</title>
+    <link rel="icon" type="image/webp" href="assets/starr.webp" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <style>
+        .error-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: left;
+            font-family: var(--mono);
+        }
+        .error-terminal {
+            max-width: 560px;
+            width: 100%;
+        }
+        .error-line { min-height: 24px; line-height: 1.8; }
+        .error-code {
+            font-size: 4rem;
+            font-weight: 500;
+            color: var(--red);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        .error-prompt { color: var(--accent); }
+        .error-comment { color: var(--muted); }
+        .error-string { color: var(--orange); }
+        .blink {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--text);
+            vertical-align: middle;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        .error-back {
+            margin-top: 1.5rem;
+            display: inline-block;
+            color: var(--accent);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1.2rem;
+            border-radius: 3px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .error-back:hover { border-color: var(--accent); background: rgba(78,201,176,0.05); }
+    </style>
+</head>
+
+<body>
+
+<!-- TITLE BAR -->
+<div class="titlebar">
+    <div class="titlebar-dots">
+        <span class="dot-red"></span>
+        <span class="dot-yellow"></span>
+        <span class="dot-green"></span>
+    </div>
+    ~/george-paraschos · 404
+    <div class="titlebar-available">available_for_hire: true</div>
+</div>
+
+<div class="error-wrap">
+    <div class="error-terminal">
+        <div class="error-code">404</div>
+        <div class="error-line"><span class="error-prompt">$</span> cat requested_page</div>
+        <div class="error-line error-comment"># cat: requested_page: No such file or directory</div>
+        <div class="error-line"></div>
+        <div class="error-line error-comment">// This route doesn't exist — but the codebase does.</div>
+        <div class="error-line error-comment">// Let's get you back to something that compiles.</div>
+        <div class="error-line"></div>
+        <div class="error-line"><span class="error-prompt">$</span> cd <span class="error-string">~/home</span> <span class="blink"></span></div>
+        <a href="/" class="error-back">← Return home</a>
+    </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+    <span>⎇ main</span>
+    <span>🔥 George Paraschos</span>
+    <div class="statusbar-right">
+        <span>UTF-8</span>
+        <span style="color:#F44747">404 NOT FOUND</span>
+        <span>Ln 1, Col 1</span>
+    </div>
+</div>
+
+</body>
+</html>
