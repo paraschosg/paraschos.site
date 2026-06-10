@@ -372,3 +372,18 @@ body.light .fn { color: #795E26; }
 body.light .st { color: #A31515; }
 body.light .ty { color: #267F99; }
 body.light .pr { color: #001080; }
+
+
+/* ── SCROLL PROGRESS BAR ── */
+#scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background: linear-gradient(to right, #007ACC, #4EC9B0);
+    z-index: 9999;
+    transition: width 0.1s;
+    pointer-events: none;
+}
+

@@ -21,6 +21,8 @@
 
 <body>
 
+<div id="scroll-progress"></div>
+
 <!-- TITLE BAR -->
 <div class="titlebar">
   <div class="titlebar-dots">
@@ -58,6 +60,9 @@
   </div>
   <div class="tab" data-file="blog" onclick="switchTab(this, 'blog')">
     <span class="tab-icon md" style="color:#CE9178">B</span> blog.md
+  </div>
+  <div class="tab" data-file="activity" onclick="switchTab(this, 'activity')">
+    <span class="tab-icon log" style="color:#CE9178">⊙</span> activity.log
   </div>
 </div>
 
@@ -98,6 +103,9 @@
       </div>
       <div class="sidebar-item" onclick="window.open('https://www.linkedin.com/in/georgios-paraschos-1a366521b/', '_blank')">
         <span class="file-icon" style="color:#0A66C2">in</span> linkedin.json
+      </div>
+      <div class="sidebar-item" onclick="switchTabById('activity')">
+        <span class="file-icon" style="color:#CE9178">⊙</span> activity.log
       </div>
     </div>
   </div>
@@ -335,6 +343,18 @@
       </div>
     </div>
 
+    <!-- activity.log -->
+    <div class="file-section" id="file-activity">
+      <div class="line-numbers" id="ln-activity"></div>
+      <div class="code-content">
+        <span class="line"><span class="c"># activity.log</span></span>
+        <span class="line"><span class="c"># Live GitHub activity — paraschosg</span></span>
+        <span class="line"></span>
+        <div id="github-activity">
+          <span class="line" style="color:#858585">Loading activity...</span>
+        </div>
+      </div>
+    </div>
   </div><!-- /editor -->
 </div><!-- /editor-area -->
 

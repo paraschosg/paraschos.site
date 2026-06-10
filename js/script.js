@@ -289,3 +289,94 @@ function showBlogList() {
 }
 
 loadBlog();
+
+// Scroll progress bar
+const progressBar = document.getElementById('scroll-progress');
+document.querySelector('.editor').addEventListener('scroll', function() {
+    const scrollTop = this.scrollTop;
+    const scrollHeight = this.scrollHeight - this.clientHeight;
+    const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    progressBar.style.width = progress + '%';
+});
+
+// Live GitHub Activity
+async function loadGitHubActivity() {
+    const container = document.getElementById('github-activity');
+    if (!container) return;
+
+    try {
+        const res = await fetch('https://api.github.com/users/paraschosg/events/public');
+        const events = await res.json();
+
+        if (!Array.isArray(events) || events.length === 0) {
+            container.innerHTML = '<span class="line" style="color:#858585">// No recent activity found.</span>';
+            return;
+        }
+
+        const lines = events.slice(0, 20).map(event => {
+            const date = new Date(event.created_at).toLocaleDateString('en-GB', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            });
+            const repo = event.repo.name.replace('paraschosg/', '');
+
+            let icon = '⊙';
+            let action = '';
+            let color = '#858585';
+
+            switch(event.type) {
+                case 'PushEvent':
+                    icon = '↑';
+                    color = '#4EC9B0';
+                    const commits = event.payload.commits || [];
+                    const msg = commits.length > 0 ? commits[commits.length-1].message : 'pushed commits';
+                    action = `<span style="color:#4EC9B0">push</span> to <span style="color:#DCDCAA">${repo}</span> <span style="color:#858585">— ${msg.split('\n')[0].slice(0,50)}</span>`;
+                    break;
+                case 'CreateEvent':
+                    icon = '+';
+                    color = '#569CD6';
+                    action = `<span style="color:#569CD6">created</span> ${event.payload.ref_type} <span style="color:#DCDCAA">${event.payload.ref || repo}</span>`;
+                    break;
+                case 'WatchEvent':
+                    icon = '★';
+                    color = '#DCDCAA';
+                    action = `<span style="color:#DCDCAA">starred</span> <span style="color:#9CDCFE">${repo}</span>`;
+                    break;
+                case 'ForkEvent':
+                    icon = '⑂';
+                    color = '#C586C0';
+                    action = `<span style="color:#C586C0">forked</span> <span style="color:#9CDCFE">${repo}</span>`;
+                    break;
+                case 'IssuesEvent':
+                    icon = '!';
+                    color = '#F44747';
+                    action = `<span style="color:#F44747">${event.payload.action} issue</span> in <span style="color:#DCDCAA">${repo}</span>`;
+                    break;
+                case 'PullRequestEvent':
+                    icon = '⇄';
+                    color = '#569CD6';
+                    action = `<span style="color:#569CD6">${event.payload.action} PR</span> in <span style="color:#DCDCAA">${repo}</span>`;
+                    break;
+                default:
+                    action = `<span style="color:#858585">${event.type.replace('Event','')} in ${repo}</span>`;
+            }
+
+            return `<div class="project-row" style="padding:6px 0">
+        <span style="color:${color}; margin-right:8px">${icon}</span>
+        <span style="color:#858585; font-size:11px; margin-right:12px">${date}</span>
+        ${action}
+      </div>`;
+        }).join('');
+
+        container.innerHTML = lines;
+        setLineNumbers('activity');
+
+    } catch(e) {
+        container.innerHTML = `
+      <span class="line" style="color:#F44747">// Error fetching GitHub activity</span>
+      <span class="line" style="color:#858585">// GitHub API rate limit may have been reached.</span>
+      <span class="line" style="color:#858585">// Try again in a few minutes.</span>
+    `;
+    }
+}
+
+loadGitHubActivity();
