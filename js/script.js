@@ -8,7 +8,7 @@ function setLineNumbers(fileId) {
     ln.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('\n');
 }
 
-['profile','projects','skills','contact'].forEach(setLineNumbers);
+['profile','skills','contact'].forEach(setLineNumbers);
 
 // Tab switching
 function switchTab(tabEl, fileId) {
@@ -63,12 +63,11 @@ function typeChar() {
         i++;
         setTimeout(typeChar, 60);
     } else {
-        // Σβήνει ο cursor μετά το τέλος
         setTimeout(() => typingEl.style.borderRight = 'none', 800);
     }
 }
 
-setTimeout(typeChar, 500); // Ξεκινάει μετά από 0.5s
+setTimeout(typeChar, 500);
 
 // Visitor counter
 async function loadVisitorCount() {
@@ -106,7 +105,6 @@ document.querySelectorAll("a[href='mailto:george@paraschos.site']").forEach(link
 
 // Keyboard shortcuts για tabs
 document.addEventListener('keydown', (e) => {
-    // Αγνόησε αν ο χρήστης πληκτρολογεί σε input
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
     const shortcuts = {
@@ -133,6 +131,8 @@ const commands = {
 <span class="kw">contact</span>    — get in touch
 <span class="kw">email</span>      — copy email to clipboard
 <span class="kw">github</span>     — open GitHub profile
+<span class="kw">linkedin</span>   — open LinkedIn profile
+<span class="kw">neofetch</span>   — system information
 <span class="kw">clear</span>      — clear terminal
 <span class="kw">hello</span>      — say hi
 `,
@@ -166,11 +166,43 @@ const commands = {
         window.open('https://github.com/paraschosg', '_blank');
         return '<span class="c">// Opening github.com/paraschosg...</span>';
     },
+    linkedin: () => {
+        window.open('https://www.linkedin.com/in/georgios-paraschos-1a366521b/', '_blank');
+        return '<span class="c">// Opening linkedin.com/in/george-paraschos...</span>';
+    },
     clear: () => {
         document.getElementById('terminal-output').innerHTML = '';
         return null;
     },
     hello: () => '<span class="st">"Hello! Thanks for visiting 👋"</span>',
+    woike: () => `<pre style="color:#4EC9B0; line-height:1.4; font-size:13px">
+██╗    ██╗ ██████╗ ██╗██╗  ██╗███████╗
+██║    ██║██╔═══██╗██║██║ ██╔╝██╔════╝
+██║ █╗ ██║██║   ██║██║█████╔╝ █████╗  
+██║███╗██║██║   ██║██║██╔═██╗ ██╔══╝  
+╚███╔███╔╝╚██████╔╝██║██║  ██╗███████╗
+ ╚══╝╚══╝  ╚═════╝ ╚═╝╚═╝  ╚═╝╚══════╝
+
+<span style="color:#858585">// Easter egg unlocked. woike woike woike</span>
+</pre>`,
+    neofetch: () => `<pre style="line-height:1.6; font-size:12px">
+<span style="color:#4EC9B0">    ██████</span>    <span style="color:#569CD6">george</span><span style="color:#D4D4D4">@</span><span style="color:#569CD6">paraschos.site</span>
+<span style="color:#4EC9B0">  ████████</span>    <span style="color:#858585">──────────────────────</span>
+<span style="color:#4EC9B0"> ████</span><span style="color:#569CD6">████</span><span style="color:#4EC9B0">█</span>    <span style="color:#569CD6">OS:</span>        <span style="color:#D4D4D4">paraschos.site v1.0</span>
+<span style="color:#4EC9B0"> ████</span><span style="color:#569CD6">████</span><span style="color:#4EC9B0">█</span>    <span style="color:#569CD6">Host:</span>      <span style="color:#D4D4D4">GitHub Pages</span>
+<span style="color:#4EC9B0"> █████████</span>    <span style="color:#569CD6">Kernel:</span>    <span style="color:#D4D4D4">HTML 5.0 / CSS 3.0</span>
+<span style="color:#4EC9B0">  ███████</span>     <span style="color:#569CD6">Shell:</span>     <span style="color:#D4D4D4">bash (this terminal)</span>
+<span style="color:#4EC9B0">    ████</span>      <span style="color:#569CD6">Editor:</span>    <span style="color:#D4D4D4">VS Code (obviously)</span>
+<span style="color:#4EC9B0">     ██</span>       <span style="color:#569CD6">Lang:</span>      <span style="color:#D4D4D4">Java, Python, JavaScript</span>
+              <span style="color:#569CD6">Backend:</span>   <span style="color:#D4D4D4">Spring Boot + JPA</span>
+              <span style="color:#569CD6">DB:</span>        <span style="color:#D4D4D4">MySQL</span>
+              <span style="color:#569CD6">University:</span><span style="color:#D4D4D4">University of the Aegean</span>
+              <span style="color:#569CD6">Status:</span>    <span style="color:#4EC9B0">available_for_hire: true</span>
+              <span style="color:#569CD6">Uptime:</span>    <span style="color:#D4D4D4">Final year</span>
+              <span style="color:#569CD6">Email:</span>     <span style="color:#CE9178">george@paraschos.site</span>
+
+              <span style="background:#F44747">   </span><span style="background:#FFBD2E">   </span><span style="background:#28C840">   </span><span style="background:#569CD6">   </span><span style="background:#C586C0">   </span><span style="background:#4EC9B0">   </span><span style="background:#D4D4D4">   </span>
+</pre>`,
 };
 
 const terminalInput = document.getElementById('terminal-input');
@@ -179,7 +211,6 @@ const history = [];
 let historyIndex = -1;
 
 if (terminalInput) {
-    // Focus όταν ανοίγει το terminal tab
     document.querySelector('.tab[data-file="terminal"]')?.addEventListener('click', () => {
         setTimeout(() => terminalInput.focus(), 50);
     });
@@ -192,12 +223,10 @@ if (terminalInput) {
             history.unshift(input);
             historyIndex = -1;
 
-            // Εμφάνισε την εντολή
             const cmdLine = document.createElement('div');
             cmdLine.innerHTML = `<span style="color:#4EC9B0">george@paraschos.site:~$</span> <span style="color:#D4D4D4">${input}</span>`;
             terminalOutput.appendChild(cmdLine);
 
-            // Εκτέλεσε την εντολή
             const fn = commands[input];
             const result = fn ? fn() : `<span style="color:#F44747">bash: ${input}: command not found</span><br><span class="c">// Type 'help' for available commands</span>`;
 
@@ -212,7 +241,6 @@ if (terminalInput) {
             terminalOutput.scrollTop = terminalOutput.scrollHeight;
 
         } else if (e.key === 'ArrowUp') {
-            // History navigation
             if (historyIndex < history.length - 1) {
                 historyIndex++;
                 terminalInput.value = history[historyIndex];
@@ -301,12 +329,74 @@ loadBlog();
 
 // Scroll progress bar
 const progressBar = document.getElementById('scroll-progress');
-document.querySelector('.editor').addEventListener('scroll', function() {
-    const scrollTop = this.scrollTop;
-    const scrollHeight = this.scrollHeight - this.clientHeight;
-    const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
-    progressBar.style.width = progress + '%';
+
+// Minimap
+const minimapCanvas = document.getElementById('minimap-canvas');
+const minimapSlider = document.getElementById('minimap-slider');
+const minimap = document.getElementById('minimap');
+const editorEl = document.getElementById('editor');
+const SCALE = 0.1;
+
+function renderMinimap() {
+    const activeSection = document.querySelector('.file-section.active .code-content');
+    if (!activeSection || !minimapCanvas) return;
+
+    const fullHeight = activeSection.scrollHeight;
+    const canvasHeight = Math.min(fullHeight * SCALE, minimap.clientHeight);
+
+    minimapCanvas.width = minimap.clientWidth;
+    minimapCanvas.height = canvasHeight;
+    minimapCanvas.style.height = canvasHeight + 'px';
+
+    const ctx = minimapCanvas.getContext('2d');
+    ctx.clearRect(0, 0, minimapCanvas.width, canvasHeight);
+
+    const lines = activeSection.querySelectorAll('.line');
+    lines.forEach((line, i) => {
+        const y = (i / lines.length) * canvasHeight;
+        const text = line.textContent.trim();
+        if (!text) return;
+
+        let color = '#858585';
+        if (line.querySelector('.kw')) color = '#569CD6';
+        else if (line.querySelector('.st')) color = '#CE9178';
+        else if (line.querySelector('.c'))  color = '#6A9955';
+        else if (line.querySelector('.fn')) color = '#DCDCAA';
+        else if (line.querySelector('.pr')) color = '#9CDCFE';
+
+        const w = Math.min(text.length * 1.2, minimapCanvas.width - 4);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.6;
+        ctx.fillRect(2, y, w, 1.5);
+    });
+
+    updateMinimapSlider();
+}
+
+function updateMinimapSlider() {
+    if (!minimapSlider || !editorEl) return;
+    const scrollRatio = editorEl.scrollTop / (editorEl.scrollHeight - editorEl.clientHeight || 1);
+    const viewRatio = editorEl.clientHeight / editorEl.scrollHeight;
+    const sliderHeight = Math.max(viewRatio * minimap.clientHeight, 20);
+    const sliderTop = scrollRatio * (minimap.clientHeight - sliderHeight);
+    minimapSlider.style.height = sliderHeight + 'px';
+    minimapSlider.style.top = sliderTop + 'px';
+}
+
+minimap?.addEventListener('click', (e) => {
+    const ratio = e.offsetY / minimap.clientHeight;
+    editorEl.scrollTop = ratio * (editorEl.scrollHeight - editorEl.clientHeight);
 });
+
+editorEl?.addEventListener('scroll', () => {
+    updateMinimapSlider();
+    const scrollTop = editorEl.scrollTop;
+    const scrollHeight = editorEl.scrollHeight - editorEl.clientHeight;
+    const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    if (progressBar) progressBar.style.width = progress + '%';
+});
+
+setTimeout(renderMinimap, 100);
 
 // Live GitHub Activity
 async function loadGitHubActivity() {
@@ -377,7 +467,6 @@ async function loadGitHubActivity() {
         }).join('');
 
         container.innerHTML = lines;
-        setLineNumbers('activity');
 
     } catch(e) {
         container.innerHTML = `
@@ -409,7 +498,6 @@ async function loadContributions() {
     if (!container) return;
 
     try {
-        // GitHub doesn't have a public contributions API so we use a proxy service
         const username = 'paraschosg';
         const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
         const data = await res.json();
@@ -417,10 +505,9 @@ async function loadContributions() {
         const contributions = data.contributions;
         if (!contributions || contributions.length === 0) throw new Error('No data');
 
-        // Group by week
         const weeks = [];
         let week = [];
-        contributions.forEach((day, i) => {
+        contributions.forEach((day) => {
             week.push(day);
             if (week.length === 7) {
                 weeks.push(week);
@@ -431,7 +518,6 @@ async function loadContributions() {
 
         const totalContributions = contributions.reduce((sum, d) => sum + d.count, 0);
 
-        // Color scale
         const getColor = (count) => {
             if (count === 0) return '#161b22';
             if (count <= 3)  return '#0e4429';
@@ -454,7 +540,6 @@ async function loadContributions() {
             }
         });
 
-        // Build SVG
         const cellSize = 12;
         const gap = 3;
         const offsetX = 30;
@@ -464,20 +549,17 @@ async function loadContributions() {
 
         let svg = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace">`;
 
-        // Month labels
         months.forEach(m => {
             const x = offsetX + m.week * (cellSize + gap);
             svg += `<text x="${x}" y="16" fill="#858585" font-size="10">${m.name}</text>`;
         });
 
-        // Day labels
         days.forEach((day, i) => {
             if (!day) return;
             const y = offsetY + i * (cellSize + gap) + cellSize - 2;
             svg += `<text x="0" y="${y}" fill="#858585" font-size="10">${day}</text>`;
         });
 
-        // Cells
         weeks.forEach((week, wi) => {
             week.forEach((day, di) => {
                 const x = offsetX + wi * (cellSize + gap);
@@ -498,15 +580,14 @@ async function loadContributions() {
       <div style="overflow-x:auto; padding-bottom:8px">${svg}</div>
       <div style="display:flex; align-items:center; gap:6px; margin-top:12px; font-size:11px; color:#858585">
         <span>Less</span>
-        <rect style="width:12px;height:12px;background:#161b22;display:inline-block;border-radius:2px"></rect>
-        <rect style="width:12px;height:12px;background:#0e4429;display:inline-block;border-radius:2px"></rect>
-        <rect style="width:12px;height:12px;background:#006d32;display:inline-block;border-radius:2px"></rect>
-        <rect style="width:12px;height:12px;background:#26a641;display:inline-block;border-radius:2px"></rect>
-        <rect style="width:12px;height:12px;background:#39d353;display:inline-block;border-radius:2px"></rect>
+        <span style="width:12px;height:12px;background:#161b22;display:inline-block;border-radius:2px"></span>
+        <span style="width:12px;height:12px;background:#0e4429;display:inline-block;border-radius:2px"></span>
+        <span style="width:12px;height:12px;background:#006d32;display:inline-block;border-radius:2px"></span>
+        <span style="width:12px;height:12px;background:#26a641;display:inline-block;border-radius:2px"></span>
+        <span style="width:12px;height:12px;background:#39d353;display:inline-block;border-radius:2px"></span>
         <span>More</span>
       </div>
     `;
-        
 
     } catch(e) {
         container.innerHTML = `
