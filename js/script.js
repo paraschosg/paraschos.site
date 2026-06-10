@@ -21,6 +21,14 @@ function switchTab(tabEl, fileId) {
     tabEl.classList.add('active');
     const section = document.getElementById('file-' + fileId);
     section.classList.add('active');
+    // Reset line animations on tab switch
+    const lines = section.querySelectorAll('.line');
+    lines.forEach((line, i) => {
+        line.style.animation = 'none';
+        line.offsetHeight; // force reflow
+        line.style.animation = '';
+        line.style.animationDelay = `${i * 0.03}s`;
+    });
     // Trigger animation
     requestAnimationFrame(() => {
         section.classList.add('fade-in');
@@ -78,7 +86,7 @@ async function loadVisitorCount() {
 
         const statusbar = document.querySelector('.statusbar');
         const counterEl = document.createElement('span');
-        counterEl.textContent = `👁 ${count.toLocaleString()} visitors`;
+        counterEl.textContent = `👁 ${count.toLocaleString()} visits`;
         statusbar.insertBefore(counterEl, statusbar.querySelector('.statusbar-right'));
     } catch (e) {
         // Αν αποτύχει δεν εμφανίζει τίποτα
@@ -175,6 +183,30 @@ const commands = {
         return null;
     },
     hello: () => '<span class="st">"Hello! Thanks for visiting 👋"</span>',
+    whoami: () => {
+        const ua = navigator.userAgent;
+        const browser = ua.includes('Chrome') ? 'Chrome' :
+            ua.includes('Firefox') ? 'Firefox' :
+                ua.includes('Safari') ? 'Safari' :
+                    ua.includes('Edge') ? 'Edge' : 'Unknown';
+        const os = ua.includes('Windows') ? 'Windows' :
+            ua.includes('Mac') ? 'macOS' :
+                ua.includes('Linux') ? 'Linux' :
+                    ua.includes('Android') ? 'Android' :
+                        ua.includes('iPhone') ? 'iOS' : 'Unknown';
+        const lang = navigator.language || 'Unknown';
+        const screen = `${window.screen.width}x${window.screen.height}`;
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        return `
+<span class="kw">const</span> <span class="ty">visitor</span> = {
+  <span class="pr">browser</span>:  <span class="st">"${browser}"</span>,
+  <span class="pr">os</span>:       <span class="st">"${os}"</span>,
+  <span class="pr">language</span>: <span class="st">"${lang}"</span>,
+  <span class="pr">screen</span>:   <span class="st">"${screen}"</span>,
+  <span class="pr">timezone</span>: <span class="st">"${tz}"</span>,
+};`;
+    },
     woike: () => `<pre style="color:#4EC9B0; line-height:1.4; font-size:13px">
 ██╗    ██╗ ██████╗ ██╗██╗  ██╗███████╗
 ██║    ██║██╔═══██╗██║██║ ██╔╝██╔════╝
@@ -228,7 +260,14 @@ if (terminalInput) {
             terminalOutput.appendChild(cmdLine);
 
             const fn = commands[input];
-            const result = fn ? fn() : `<span style="color:#F44747">bash: ${input}: command not found</span><br><span class="c">// Type 'help' for available commands</span>`;
+            let result;
+            if (fn) {
+                result = fn();
+            } else {
+                result = `<span style="color:#F44747">bash: ${input}: command not found</span><br><span class="c">// Type 'help' for available commands</span>`;
+                terminalInput.classList.add('shake');
+                setTimeout(() => terminalInput.classList.remove('shake'), 400);
+            }
 
             if (result !== null) {
                 const outputLine = document.createElement('div');
@@ -598,3 +637,62 @@ async function loadContributions() {
 }
 
 loadContributions();
+
+// Loading screen
+const loadingScreen = document.getElementById('loading-screen');
+const loadingBar = document.getElementById('loading-bar');
+const loadingMsg = document.getElementById('loading-msg');
+const loadingPct = document.getElementById('loading-pct');
+
+const loadingSteps = [
+    { pct: 15,  msg: 'Loading extensions...' },
+    { pct: 30,  msg: 'Reading file system...' },
+    { pct: 50,  msg: 'Parsing syntax tree...' },
+    { pct: 65,  msg: 'Fetching GitHub activity...' },
+    { pct: 80,  msg: 'Building contributions graph...' },
+    { pct: 92,  msg: 'Starting language server...' },
+    { pct: 100, msg: 'Ready.' },
+];
+
+let stepIndex = 0;
+function runLoadingStep() {
+    if (stepIndex >= loadingSteps.length) {
+        setTimeout(() => {
+            loadingScreen.style.transition = 'opacity 0.4s ease';
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => loadingScreen.remove(), 400);
+        }, 300);
+        return;
+    }
+    const step = loadingSteps[stepIndex];
+    loadingBar.style.width = step.pct + '%';
+    loadingMsg.textContent = step.msg;
+    loadingPct.textContent = step.pct + '%';
+    stepIndex++;
+    setTimeout(runLoadingStep, stepIndex === loadingSteps.length ? 400 : 250);
+}
+
+setTimeout(runLoadingStep, 200);
+
+// Typewriter mode
+// const typewriterToggle = document.getElementById('typewriter-toggle');
+// let typewriterActive = false;
+//
+// typewriterToggle.addEventListener('click', () => {
+//     typewriterActive = !typewriterActive;
+//     typewriterToggle.style.color = typewriterActive ? '#4EC9B0' : '#CCCCCC';
+//
+//     if (typewriterActive) {
+//         document.body.classList.add('typewriter-mode');
+//         const lines = document.querySelectorAll('.file-section.active .line');
+//         lines.forEach((line, i) => {
+//             line.style.animationDelay = `${i * 0.05}s`;
+//         });
+//     } else {
+//         document.body.classList.remove('typewriter-mode');
+//         document.querySelectorAll('.line').forEach(line => {
+//             line.style.animationDelay = '';
+//             line.style.opacity = '';
+//         });
+//     }
+// });

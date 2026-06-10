@@ -406,3 +406,52 @@ body.light .pr { color: #001080; }
         transform: translateY(0);
     }
 }
+
+/* ── SHAKE ANIMATION ── */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+}
+
+.shake {
+    animation: shake 0.4s ease;
+}
+
+/* ── LIVE SIGNAL ── */
+.live-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4EC9B0;
+    margin-right: 6px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.3; transform: scale(0.8); }
+}
+
+/* ── TYPEWRITER MODE ── */
+.typewriter-mode .code-content .line {
+    opacity: 0;
+    animation: revealLine 0.05s ease forwards;
+}
+
+@keyframes revealLine {
+    to { opacity: 1; }
+}
+
+/* ── TYPEWRITER MODE ── */
+.file-section.active .code-content .line {
+    opacity: 0;
+    animation: revealLine 0.08s ease forwards;
+}
+
+@keyframes revealLine {
+    to { opacity: 1; }
+}

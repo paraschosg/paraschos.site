@@ -21,6 +21,32 @@
 
 <body>
 
+<!-- LOADING SCREEN -->
+<div id="loading-screen" style="
+  position: fixed; inset: 0; z-index: 99999;
+  background: #1E1E1E;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+">
+  <div style="width: 340px;">
+    <div style="color:#4EC9B0; font-size:13px; margin-bottom:8px">
+      ~/george-paraschos · Portfolio
+    </div>
+    <div style="color:#858585; font-size:11px; margin-bottom:20px" id="loading-msg">
+      Initializing workspace...
+    </div>
+    <div style="background:#2D2D2D; border-radius:2px; height:3px; width:100%;">
+      <div id="loading-bar" style="
+        height:3px; width:0%; border-radius:2px;
+        background: linear-gradient(to right, #007ACC, #4EC9B0);
+        transition: width 0.3s ease;
+      "></div>
+    </div>
+    <div style="color:#555; font-size:10px; margin-top:8px; text-align:right" id="loading-pct">0%</div>
+  </div>
+</div>
+
 <div id="scroll-progress"></div>
 
 <!-- TITLE BAR -->
@@ -38,7 +64,7 @@
     cursor:pointer; padding:2px 6px;
     border-radius:3px; transition:background 0.2s;
   " title="Toggle theme">☀</button>
-  <div class="titlebar-available">available_for_hire: true</div>
+  <div class="titlebar-available"><span class="live-dot"></span></div>
 </div>
 
 <!-- TABS -->
@@ -378,7 +404,7 @@
 <!-- STATUS BAR -->
 <div class="statusbar">
   <span>⎇ main</span>
-  <span>🔥 George Paraschos</span>
+  <span> George Paraschos</span>
   <div class="statusbar-right">
     <span>UTF-8</span>
     <span>TypeScript</span>
