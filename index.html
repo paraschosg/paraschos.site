@@ -31,6 +31,14 @@
   </div>
   ~/george-paraschos · Portfolio
   <div class="titlebar-available">available_for_hire: true</div>
+  
+  <button id="theme-toggle" style="
+  position:absolute; right: 180px;
+  background:none; border:none; color:#CCCCCC;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  cursor:pointer; padding:2px 6px;
+  border-radius:3px; transition:background 0.2s;
+" title="Toggle theme">☀</button>
 </div>
 
 <!-- TABS -->
@@ -46,6 +54,9 @@
   </div>
   <div class="tab" data-file="contact" onclick="switchTab(this, 'contact')">
     <span class="tab-icon sh">$</span> contact.sh
+  </div>
+  <div class="tab" data-file="terminal" onclick="switchTab(this, 'terminal')">
+    <span class="tab-icon sh">$</span> terminal
   </div>
 </div>
 
@@ -272,6 +283,25 @@
         <span class="line"><span class="c"># — george@paraschos.site</span></span>
         <span class="line"><span class="c"># — Available for opportunities</span></span>
         <span class="line"><span class="c"># — Based in Greece</span></span>
+      </div>
+    </div>
+
+    <!-- terminal -->
+    <div class="file-section" id="file-terminal">
+      <div class="line-numbers" id="ln-terminal"></div>
+      <div class="code-content">
+        <div id="terminal-output">
+          <span class="line"><span class="c"># Welcome to George's terminal</span></span>
+          <span class="line"><span class="c"># Type 'help' to see available commands</span></span>
+          <span class="line"></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+          <span style="color:#4EC9B0">george@paraschos.site:~$</span>
+          <input id="terminal-input" type="text" autocomplete="off" spellcheck="false"
+                 style="background:transparent; border:none; outline:none; color:#D4D4D4;
+               font-family:'JetBrains Mono',monospace; font-size:13px; flex:1;
+               cursor:text !important;" />
+        </div>
       </div>
     </div>
 
