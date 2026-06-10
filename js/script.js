@@ -696,3 +696,65 @@ setTimeout(runLoadingStep, 200);
 //         });
 //     }
 // });
+
+// Multiplayer presence
+const SUPABASE_URL = 'https://kjnccezuxqfwqgwxkjzp.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqbmNjZXp1eHFmd3Fnd3hranp6cCI6ImFub24iLCJpYXQiOjE3NDkzMjcwNDMsImV4cCI6MjA2NDkwMzA0M30';
+
+const visitorId = Math.random().toString(36).slice(2);
+let onlineCount = 1;
+
+async function updatePresence() {
+    try {
+        // Register presence
+        await fetch(`${SUPABASE_URL}/rest/v1/presence`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify({
+                id: visitorId,
+                last_seen: new Date().toISOString()
+            })
+        });
+
+        // Get active visitors (last 30 seconds)
+        const since = new Date(Date.now() - 30000).toISOString();
+        const res = await fetch(
+            `${SUPABASE_URL}/rest/v1/presence?last_seen=gte.${since}&select=id`,
+            {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                }
+            }
+        );
+        const data = await res.json();
+        onlineCount = Array.isArray(data) ? data.length : 1;
+
+        // Update status bar
+        let onlineEl = document.getElementById('online-count');
+        if (!onlineEl) {
+            onlineEl = document.createElement('span');
+            onlineEl.id = 'online-count';
+            const statusbar = document.querySelector('.statusbar');
+            statusbar.insertBefore(onlineEl, statusbar.querySelector('.statusbar-right'));
+        }
+        onlineEl.innerHTML = `<span style="color:#28C840">●</span> ${onlineCount} online`;
+
+    } catch(e) {}
+}
+
+updatePresence();
+setInterval(updatePresence, 15000);
+
+// Remove presence on page leave
+window.addEventListener('beforeunload', () => {
+    navigator.sendBeacon(
+        `${SUPABASE_URL}/rest/v1/presence?id=eq.${visitorId}`,
+        JSON.stringify({ method: 'DELETE' })
+    );
+});
