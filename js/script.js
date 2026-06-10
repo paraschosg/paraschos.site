@@ -40,3 +40,57 @@ function toggleProject(header) {
         typeEl.textContent = typeEl.textContent.replace(/[+-]$/, isOpen ? '+' : '-');
     }
 }
+
+// Typing animation για το titlebar
+const typingEl = document.querySelector('.titlebar-available');
+const fullText = 'available_for_hire: true';
+typingEl.textContent = '';
+typingEl.style.borderRight = '2px solid #4EC9B0';
+
+let i = 0;
+function typeChar() {
+    if (i < fullText.length) {
+        typingEl.textContent += fullText[i];
+        i++;
+        setTimeout(typeChar, 60);
+    } else {
+        // Σβήνει ο cursor μετά το τέλος
+        setTimeout(() => typingEl.style.borderRight = 'none', 800);
+    }
+}
+
+setTimeout(typeChar, 500); // Ξεκινάει μετά από 0.5s
+
+// Visitor counter
+async function loadVisitorCount() {
+    try {
+        const response = await fetch('https://api.counterapi.dev/v1/paraschos-site/visits/up');
+        const data = await response.json();
+        const count = data.count;
+
+        const statusbar = document.querySelector('.statusbar');
+        const counterEl = document.createElement('span');
+        counterEl.textContent = `👁 ${count.toLocaleString()} visitors`;
+        statusbar.insertBefore(counterEl, statusbar.querySelector('.statusbar-right'));
+    } catch (e) {
+        // Αν αποτύχει δεν εμφανίζει τίποτα
+    }
+}
+
+loadVisitorCount();
+
+// Copy email button
+document.querySelectorAll("a[href='mailto:george@paraschos.site']").forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigator.clipboard.writeText('george@paraschos.site').then(() => {
+            const original = link.textContent;
+            link.textContent = '✓ Copied!';
+            link.style.color = '#4EC9B0';
+            setTimeout(() => {
+                link.textContent = original;
+                link.style.color = '';
+            }, 2000);
+        });
+    });
+});
