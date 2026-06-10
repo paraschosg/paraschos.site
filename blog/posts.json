@@ -1,0 +1,18 @@
+[
+  {
+    "id": "distributed-clocks",
+    "date": "2026-06-10",
+    "title": "Lamport Clocks vs Vector Clocks",
+    "tag": "Distributed Systems",
+    "preview": "Why scalar timestamps aren't enough in distributed systems, and how vector clocks fix that.",
+    "content": "// Lamport clocks give us a partial order of events.\n// But they can't tell us if two events are concurrent.\n//\n// Vector clocks solve this: each process keeps a vector\n// of counters — one per process in the system.\n//\n// If V(a) < V(b) then a happened-before b.\n// If neither V(a) < V(b) nor V(b) < V(a) → concurrent.\n//\n// This is the foundation of conflict detection in\n// distributed databases like DynamoDB and Riak."
+  },
+  {
+    "id": "rsa-hastad",
+    "date": "2026-06-05",
+    "title": "Håstad's Broadcast Attack on RSA",
+    "tag": "Cryptography",
+    "preview": "When the same message is encrypted with small exponent e to multiple recipients, an attacker can recover it.",
+    "content": "// If e=3 and the same message m is sent to 3 recipients\n// each with different moduli n1, n2, n3:\n//\n// c1 = m^3 mod n1\n// c2 = m^3 mod n2\n// c3 = m^3 mod n3\n//\n// By CRT we recover m^3 mod (n1*n2*n3)\n// Since m < ni for all i, m^3 < n1*n2*n3\n// So we just compute the integer cube root.\n//\n// Fix: always use OAEP padding."
+  }
+]

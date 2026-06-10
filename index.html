@@ -16,7 +16,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-7T6VM4DQBP');
 </script>
 
@@ -30,15 +29,14 @@
     <span class="dot-green"></span>
   </div>
   ~/george-paraschos · Portfolio
-  <div class="titlebar-available">available_for_hire: true</div>
-  
   <button id="theme-toggle" style="
-  position:absolute; right: 180px;
-  background:none; border:none; color:#CCCCCC;
-  font-family:'JetBrains Mono',monospace; font-size:11px;
-  cursor:pointer; padding:2px 6px;
-  border-radius:3px; transition:background 0.2s;
-" title="Toggle theme">☀</button>
+    position:absolute; right: 180px;
+    background:none; border:none; color:#CCCCCC;
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    cursor:pointer; padding:2px 6px;
+    border-radius:3px; transition:background 0.2s;
+  " title="Toggle theme">☀</button>
+  <div class="titlebar-available">available_for_hire: true</div>
 </div>
 
 <!-- TABS -->
@@ -57,6 +55,9 @@
   </div>
   <div class="tab" data-file="terminal" onclick="switchTab(this, 'terminal')">
     <span class="tab-icon sh">$</span> terminal
+  </div>
+  <div class="tab" data-file="blog" onclick="switchTab(this, 'blog')">
+    <span class="tab-icon md" style="color:#CE9178">B</span> blog.md
   </div>
 </div>
 
@@ -87,10 +88,16 @@
       <div class="sidebar-item" onclick="switchTabById('projects')">
         <span class="file-icon">▸</span> projects.dir
       </div>
+      <div class="sidebar-item" onclick="switchTabById('blog')">
+        <span class="file-icon" style="color:#CE9178">B</span> blog.md
+      </div>
 
       <div class="sidebar-group-label">meta/</div>
       <div class="sidebar-item" onclick="switchTabById('contact')">
         <span class="file-icon">$</span> contact.sh
+      </div>
+      <div class="sidebar-item" onclick="window.open('https://www.linkedin.com/in/georgios-paraschos-1a366521b/', '_blank')">
+        <span class="file-icon" style="color:#0A66C2">in</span> linkedin.json
       </div>
     </div>
   </div>
@@ -134,6 +141,10 @@
         <span class="line"></span>
         <span class="line"><span class="kw">const</span> <span class="fn">findMeAt</span> <span class="op">=</span> () <span class="op">=&gt;</span> {</span>
         <span class="line">  <span class="kw">return</span> <span class="st">"<a href='https://github.com/paraschosg' target='_blank' style='color:#CE9178'>github.com/paraschosg</a>"</span><span class="op">;</span></span>
+        <span class="line">}<span class="op">;</span></span>
+        <span class="line"></span>
+        <span class="line"><span class="kw">const</span> <span class="fn">connectOn</span> <span class="op">=</span> () <span class="op">=&gt;</span> {</span>
+        <span class="line">  <span class="kw">return</span> <span class="st">"<a href='https://www.linkedin.com/in/georgios-paraschos-1a366521b/' target='_blank' style='color:#CE9178'>linkedin.com/in/george-paraschos</a>"</span><span class="op">;</span></span>
         <span class="line">}<span class="op">;</span></span>
       </div>
     </div>
@@ -269,6 +280,7 @@
         <span class="line"></span>
         <span class="line"><span class="kw">EMAIL</span><span class="op">=</span><span class="st">"<a href='mailto:george@paraschos.site' style='color:#CE9178'>george@paraschos.site</a>"</span></span>
         <span class="line"><span class="kw">GITHUB</span><span class="op">=</span><span class="st">"<a href='https://github.com/paraschosg' target='_blank' style='color:#CE9178'>github.com/paraschosg</a>"</span></span>
+        <span class="line"><span class="kw">LINKEDIN</span><span class="op">=</span><span class="st">"<a href='https://www.linkedin.com/in/georgios-paraschos-1a366521b/' target='_blank' style='color:#CE9178'>linkedin.com/in/george-paraschos</a>"</span></span>
         <span class="line"><span class="kw">SITE</span><span class="op">=</span><span class="st">"<a href='https://paraschos.site' style='color:#CE9178'>paraschos.site</a>"</span></span>
         <span class="line"></span>
         <span class="line"><span class="fn">send_message</span>() {</span>
@@ -299,8 +311,26 @@
           <span style="color:#4EC9B0">george@paraschos.site:~$</span>
           <input id="terminal-input" type="text" autocomplete="off" spellcheck="false"
                  style="background:transparent; border:none; outline:none; color:#D4D4D4;
-               font-family:'JetBrains Mono',monospace; font-size:13px; flex:1;
-               cursor:text !important;" />
+                 font-family:'JetBrains Mono',monospace; font-size:13px; flex:1;
+                 cursor:text !important;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- blog.md -->
+    <div class="file-section" id="file-blog">
+      <div class="line-numbers" id="ln-blog"></div>
+      <div class="code-content" id="blog-content">
+        <span class="line"><span class="c"># blog.md</span></span>
+        <span class="line"><span class="c">## Things I learned worth writing down.</span></span>
+        <span class="line"></span>
+        <div id="blog-list"></div>
+        <div id="blog-post" style="display:none">
+          <span class="line" id="back-btn" onclick="showBlogList()"
+                style="color:#4EC9B0; cursor:pointer; display:inline-block; margin-bottom:8px;">
+            ← back to posts
+          </span>
+          <div id="blog-post-content"></div>
         </div>
       </div>
     </div>

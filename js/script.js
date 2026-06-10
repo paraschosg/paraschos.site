@@ -237,3 +237,55 @@ themeToggle.addEventListener('click', () => {
     themeToggle.textContent = isLight ? '🌙' : '☀';
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
 });
+
+// Blog
+async function loadBlog() {
+    try {
+        const res = await fetch('blog/posts.json');
+        const posts = await res.json();
+        renderBlogList(posts);
+    } catch(e) {
+        document.getElementById('blog-list').innerHTML =
+            '<span class="c">// No posts found.</span>';
+    }
+}
+
+function renderBlogList(posts) {
+    const list = document.getElementById('blog-list');
+    list.innerHTML = posts.map(post => `
+    <div class="project-row" style="padding:10px 0; cursor:pointer"
+      onclick="showBlogPost(${JSON.stringify(post).replace(/"/g, '&quot;')})">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="color:#858585; font-size:11px; min-width:80px">${post.date}</span>
+        <span style="color:#DCDCAA; font-weight:500">${post.title}</span>
+        <span style="color:#4EC9B0; font-size:11px; margin-left:auto">${post.tag}</span>
+      </div>
+      <div style="color:#858585; font-size:12px; margin-top:4px; padding-left:92px">
+        ${post.preview}
+      </div>
+    </div>
+  `).join('');
+}
+
+function showBlogPost(post) {
+    document.getElementById('blog-list').style.display = 'none';
+    document.getElementById('blog-post').style.display = 'block';
+
+    const lines = post.content.split('\n').map(line =>
+        `<span class="line"><span class="c">${line}</span></span>`
+    ).join('');
+
+    document.getElementById('blog-post-content').innerHTML = `
+    <span class="line" style="font-size:16px; color:#D4D4D4; font-weight:500">${post.title}</span>
+    <span class="line" style="color:#858585; margin-bottom:12px">${post.date} · ${post.tag}</span>
+    <span class="line"></span>
+    ${lines}
+  `;
+}
+
+function showBlogList() {
+    document.getElementById('blog-list').style.display = 'block';
+    document.getElementById('blog-post').style.display = 'none';
+}
+
+loadBlog();
