@@ -455,3 +455,14 @@ body.light .pr { color: #001080; }
 @keyframes revealLine {
     to { opacity: 1; }
 }
+
+/* ── 3D CARD EFFECT ── */
+.profile-card {
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    will-change: transform;
+}
+
+.profile-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}

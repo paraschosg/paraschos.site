@@ -758,3 +758,46 @@ window.addEventListener('beforeunload', () => {
         JSON.stringify({ method: 'DELETE' })
     );
 });
+
+// 3D Card Effect
+const profileCard = document.querySelector('.profile-card');
+
+profileCard?.addEventListener('mousemove', (e) => {
+    const rect = profileCard.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+
+    const rotateX = ((y - cy) / cy) * -12;
+    const rotateY = ((x - cx) / cx) * 12;
+
+    profileCard.style.transform = `perspective(400px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.04)`;
+});
+
+profileCard?.addEventListener('mouseleave', () => {
+    profileCard.style.transform = 'perspective(400px) rotateX(0deg) rotateY(0deg) scale(1)';
+});
+
+// Tab favicon αλλάζει όταν φεύγεις
+const favicon = document.querySelector("link[rel='icon']");
+const originalFavicon = favicon.href;
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        favicon.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💤</text></svg>";
+        document.title = "Come back!";
+    } else {
+        favicon.href = originalFavicon;
+        document.title = "George's corner";
+    }
+});
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(() => console.log('SW registered'))
+            .catch(e => console.log('SW failed:', e));
+    });
+}
