@@ -699,7 +699,7 @@ setTimeout(runLoadingStep, 200);
 
 // Multiplayer presence
 const SUPABASE_URL = 'https://kjnccezuxqfwqgwxkjzp.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqbmNjZXp1eHFmd3Fnd3hranp6cCI6ImFub24iLCJpYXQiOjE3NDkzMjcwNDMsImV4cCI6MjA2NDkwMzA0M30';
+const SUPABASE_KEY = 'sb_publishable_GlzlSacjaap2eAFL31cTNw_c39FCipz';
 
 const visitorId = Math.random().toString(36).slice(2);
 let onlineCount = 1;
