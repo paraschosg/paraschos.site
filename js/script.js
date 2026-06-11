@@ -801,3 +801,101 @@ if ('serviceWorker' in navigator) {
             .catch(e => console.log('SW failed:', e));
     });
 }
+
+// Ambient Mode
+const ambientOverlay = document.getElementById('ambient-overlay');
+const ambientCanvas = document.getElementById('ambient-canvas');
+const ambientCtx = ambientCanvas.getContext('2d');
+
+const codeSnippets = [
+    'const x = 42;', 'import java.util.*;', 'git push origin main',
+    'SELECT * FROM', 'System.out.println', '{ } => {}',
+    'npm install', 'ssh george@paraschos.site', '#!/bin/bash',
+    'docker run', 'while(true)', 'try { } catch',
+    'O(log n)', 'public static void', 'git commit -m',
+    '127.0.0.1', 'HTTP/2 200', 'async/await',
+    'RSA encrypt', 'vector clock', 'mutex.lock()',
+];
+
+let ambientParticles = [];
+let ambientActive = false;
+let idleTimer = null;
+let animFrame = null;
+
+function resizeAmbientCanvas() {
+    ambientCanvas.width = window.innerWidth;
+    ambientCanvas.height = window.innerHeight;
+}
+
+function spawnParticle() {
+    const snippet = codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+    const colors = ['#4EC9B0', '#569CD6', '#CE9178', '#6A9955', '#DCDCAA', '#C586C0'];
+    ambientParticles.push({
+        text: snippet,
+        x: Math.random() * window.innerWidth,
+        y: window.innerHeight + 20,
+        speed: 0.3 + Math.random() * 0.8,
+        opacity: 0.1 + Math.random() * 0.4,
+        size: 10 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        drift: (Math.random() - 0.5) * 0.3,
+    });
+}
+
+function drawAmbient() {
+    ambientCtx.clearRect(0, 0, ambientCanvas.width, ambientCanvas.height);
+
+    if (Math.random() < 0.05) spawnParticle();
+
+    ambientParticles = ambientParticles.filter(p => p.y > -20);
+
+    ambientParticles.forEach(p => {
+        p.y -= p.speed;
+        p.x += p.drift;
+        ambientCtx.save();
+        ambientCtx.globalAlpha = p.opacity;
+        ambientCtx.fillStyle = p.color;
+        ambientCtx.font = `${p.size}px 'JetBrains Mono', monospace`;
+        ambientCtx.fillText(p.text, p.x, p.y);
+        ambientCtx.restore();
+    });
+
+    if (ambientActive) animFrame = requestAnimationFrame(drawAmbient);
+}
+
+function enterAmbient() {
+    if (ambientActive) return;
+    ambientActive = true;
+    ambientParticles = [];
+    resizeAmbientCanvas();
+    ambientOverlay.classList.add('active');
+    drawAmbient();
+}
+
+function exitAmbient() {
+    if (!ambientActive) return;
+    ambientActive = false;
+    cancelAnimationFrame(animFrame);
+    ambientOverlay.classList.remove('active');
+    resetIdleTimer();
+}
+
+function resetIdleTimer() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(enterAmbient, 60000); // 1 λεπτό
+}
+
+// Exit on interaction
+ambientOverlay.addEventListener('click', exitAmbient);
+ambientOverlay.addEventListener('mousemove', exitAmbient);
+document.addEventListener('keydown', (e) => {
+    if (ambientActive) { exitAmbient(); return; }
+    if (e.target.tagName !== 'INPUT') resetIdleTimer();
+});
+document.addEventListener('mousemove', () => {
+    if (!ambientActive) resetIdleTimer();
+});
+
+window.addEventListener('resize', resizeAmbientCanvas);
+resizeAmbientCanvas();
+resetIdleTimer();
