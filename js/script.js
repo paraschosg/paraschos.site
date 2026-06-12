@@ -1,64 +1,146 @@
-// Generate line numbers
+/* ════════════════════════════════════════════════
+   CONSENT — analytics only run after explicit opt-in
+   ════════════════════════════════════════════════ */
+const CONSENT_KEY = 'analytics-consent'; // 'granted' | 'denied' | null
+
+function getConsent() {
+    return localStorage.getItem(CONSENT_KEY);
+}
+
+function analyticsAllowed() {
+    return getConsent() === 'granted';
+}
+
+function loadGoogleAnalytics() {
+    if (window.__gaLoaded) return;
+    window.__gaLoaded = true;
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-7T6VM4DQBP';
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag('js', new Date());
+    gtag('config', 'G-7T6VM4DQBP', { anonymize_ip: true });
+}
+
+function startAnalytics() {
+    loadGoogleAnalytics();
+    loadVisitorCount();
+    updatePresence();
+    presenceTimer = setInterval(updatePresence, 15000);
+    trackEvent('pageview');
+}
+
+/* ════════════════════════════════════════════════
+   LINE NUMBERS
+   ════════════════════════════════════════════════ */
 function setLineNumbers(fileId) {
     const content = document.querySelector(`#file-${fileId} .code-content`);
     const ln = document.getElementById(`ln-${fileId}`);
     if (!content || !ln) return;
-    const lines = content.innerHTML.split('\n').length + 5;
-    ln.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('\n');
+    const lines = Math.max(content.querySelectorAll('.line').length, 1) + 5;
+    ln.innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
 }
 
-['profile','skills','contact'].forEach(setLineNumbers);
+const STATIC_TABS = ['profile', 'projects', 'skills', 'contact', 'terminal', 'blog', 'activity'];
+STATIC_TABS.forEach(setLineNumbers);
 
-// Tab switching
+/* ════════════════════════════════════════════════
+   TAB SWITCHING (with one-time typewriter reveal)
+   ════════════════════════════════════════════════ */
+const revealedTabs = new Set(['profile']); // first tab is visible on load
+
 function switchTab(tabEl, fileId) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+    });
     document.querySelectorAll('.file-section').forEach(s => {
-        s.classList.remove('active');
-        s.classList.remove('fade-in');
+        s.classList.remove('active', 'fade-in', 'reveal');
     });
     document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-    tabEl.classList.add('active');
+
+    if (tabEl) {
+        tabEl.classList.add('active');
+        tabEl.setAttribute('aria-selected', 'true');
+    }
+    const sidebarItem = document.querySelector(`.sidebar-item[data-file="${fileId}"]`);
+    sidebarItem?.classList.add('active');
+
     const section = document.getElementById('file-' + fileId);
+    if (!section) return;
     section.classList.add('active');
 
-    // Track tab open
     trackEvent('tab_open', { tab: fileId });
 
-    // Reset line animations on tab switch
-    const lines = section.querySelectorAll('.line');
-    lines.forEach((line, i) => {
-        line.style.animation = 'none';
-        line.offsetHeight;
-        line.style.animation = '';
-        line.style.animationDelay = `${i * 0.03}s`;
-    });
-    requestAnimationFrame(() => {
-        section.classList.add('fade-in');
-    });
-    setTimeout(renderMinimap, 50);
+    // Typewriter reveal only the first time a tab is opened
+    if (!revealedTabs.has(fileId)) {
+        revealedTabs.add(fileId);
+        section.classList.add('reveal');
+        section.querySelectorAll('.line').forEach((line, i) => {
+            line.style.animationDelay = `${i * 0.03}s`;
+        });
+    }
+    requestAnimationFrame(() => section.classList.add('fade-in'));
 }
 
 function switchTabById(fileId) {
     const tab = document.querySelector(`.tab[data-file="${fileId}"]`);
-    if (tab) switchTab(tab, fileId);
-    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    switchTab(tab, fileId);
 }
 
-// Project expand/collapse
+// Wire up tabs and sidebar items (click + keyboard)
+function activate(el) {
+    if (el.dataset.file) {
+        switchTabById(el.dataset.file);
+        if (el.dataset.file === 'terminal') {
+            setTimeout(() => document.getElementById('terminal-input')?.focus(), 50);
+        }
+    } else if (el.dataset.href) {
+        if (el.dataset.self) window.location.href = el.dataset.href;
+        else window.open(el.dataset.href, '_blank', 'noopener');
+    }
+}
+
+document.querySelectorAll('.tab, .sidebar-item').forEach(el => {
+    el.addEventListener('click', () => activate(el));
+    el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            activate(el);
+        }
+    });
+});
+
+/* ════════════════════════════════════════════════
+   PROJECT EXPAND / COLLAPSE
+   ════════════════════════════════════════════════ */
 function toggleProject(header) {
     const body = header.nextElementSibling;
     const toggle = header.querySelector('.project-toggle');
     const isOpen = body.classList.contains('open');
     body.classList.toggle('open', !isOpen);
     toggle.classList.toggle('open', !isOpen);
+    header.setAttribute('aria-expanded', String(!isOpen));
     const typeEl = header.querySelector('.project-type');
     if (typeEl) {
         typeEl.textContent = typeEl.textContent.replace(/[+-]$/, isOpen ? '+' : '-');
     }
 }
 
-// Typing animation για το titlebar
+document.querySelectorAll('.project-header').forEach(header => {
+    header.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleProject(header);
+        }
+    });
+});
+
+/* ════════════════════════════════════════════════
+   TITLEBAR TYPING ANIMATION
+   ════════════════════════════════════════════════ */
 const typingEl = document.querySelector('.titlebar-available');
 if (typingEl) {
     const fullText = 'available_for_hire: true';
@@ -78,7 +160,9 @@ if (typingEl) {
     setTimeout(typeChar, 500);
 }
 
-// Visitor counter
+/* ════════════════════════════════════════════════
+   VISITOR COUNTER (consent-gated, called from startAnalytics)
+   ════════════════════════════════════════════════ */
 async function loadVisitorCount() {
     try {
         const response = await fetch('https://api.counterapi.dev/v1/paraschos-site/visits/up');
@@ -91,16 +175,16 @@ async function loadVisitorCount() {
     } catch (e) {}
 }
 
-loadVisitorCount();
-
-// Copy email button
+/* ════════════════════════════════════════════════
+   COPY EMAIL ON CLICK
+   ════════════════════════════════════════════════ */
 document.querySelectorAll("a[href='mailto:george@paraschos.site']").forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
         navigator.clipboard.writeText('george@paraschos.site').then(() => {
             const original = link.textContent;
             link.textContent = '✓ Copied!';
-            link.style.color = '#4EC9B0';
+            link.style.color = 'var(--accent)';
             setTimeout(() => {
                 link.textContent = original;
                 link.style.color = '';
@@ -109,18 +193,18 @@ document.querySelectorAll("a[href='mailto:george@paraschos.site']").forEach(link
     });
 });
 
-// Keyboard shortcuts για tabs
+/* ════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS FOR TABS
+   ════════════════════════════════════════════════ */
 document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     const shortcuts = { '1': 'profile', '2': 'projects', '3': 'skills', '4': 'contact' };
-    if (shortcuts[e.key]) {
-        const fileId = shortcuts[e.key];
-        const tab = document.querySelector(`.tab[data-file="${fileId}"]`);
-        if (tab) switchTab(tab, fileId);
-    }
+    if (shortcuts[e.key]) switchTabById(shortcuts[e.key]);
 });
 
-// Terminal
+/* ════════════════════════════════════════════════
+   TERMINAL
+   ════════════════════════════════════════════════ */
 const commands = {
     help: () => `
 <span class="c">// Available commands:</span>
@@ -133,6 +217,7 @@ const commands = {
 <span class="kw">linkedin</span>   — open LinkedIn profile
 <span class="kw">neofetch</span>   — system information
 <span class="kw">whoami</span>     — visitor information
+<span class="kw">privacy</span>    — privacy notice
 <span class="kw">clear</span>      — clear terminal
 <span class="kw">hello</span>      — say hi
 `,
@@ -144,18 +229,15 @@ const commands = {
   <span class="pr">available</span>:  <span class="kw">true</span>,
 };`,
     projects: () => {
-        const tab = document.querySelector('.tab[data-file="projects"]');
-        if (tab) switchTab(tab, 'projects');
+        switchTabById('projects');
         return '<span class="c">// Opening projects.dir...</span>';
     },
     skills: () => {
-        const tab = document.querySelector('.tab[data-file="skills"]');
-        if (tab) switchTab(tab, 'skills');
+        switchTabById('skills');
         return '<span class="c">// Opening skills.json...</span>';
     },
     contact: () => {
-        const tab = document.querySelector('.tab[data-file="contact"]');
-        if (tab) switchTab(tab, 'contact');
+        switchTabById('contact');
         return '<span class="c">// Opening contact.sh...</span>';
     },
     email: () => {
@@ -163,12 +245,16 @@ const commands = {
         return '<span class="ty">✓ Copied george@paraschos.site to clipboard</span>';
     },
     github: () => {
-        window.open('https://github.com/paraschosg', '_blank');
+        window.open('https://github.com/paraschosg', '_blank', 'noopener');
         return '<span class="c">// Opening github.com/paraschosg...</span>';
     },
     linkedin: () => {
-        window.open('https://www.linkedin.com/in/georgios-paraschos-1a366521b/', '_blank');
+        window.open('https://www.linkedin.com/in/georgios-paraschos-1a366521b/', '_blank', 'noopener');
         return '<span class="c">// Opening linkedin.com/in/george-paraschos...</span>';
+    },
+    privacy: () => {
+        window.location.href = '/privacy.html';
+        return '<span class="c">// Opening privacy.md...</span>';
     },
     clear: () => {
         document.getElementById('terminal-output').innerHTML = '';
@@ -189,9 +275,10 @@ const commands = {
   <span class="pr">language</span>: <span class="st">"${lang}"</span>,
   <span class="pr">screen</span>:   <span class="st">"${scr}"</span>,
   <span class="pr">timezone</span>: <span class="st">"${tz}"</span>,
-};`;
+};
+<span class="c">// Computed in your browser. Nothing here is sent anywhere.</span>`;
     },
-    woike: () => `<pre style="color:#4EC9B0; line-height:1.4; font-size:13px">
+    woike: () => `<pre style="color:var(--accent); line-height:1.4; font-size:13px">
 ██╗    ██╗ ██████╗ ██╗██╗  ██╗███████╗
 ██║    ██║██╔═══██╗██║██║ ██╔╝██╔════╝
 ██║ █╗ ██║██║   ██║██║█████╔╝ █████╗  
@@ -199,23 +286,23 @@ const commands = {
 ╚███╔███╔╝╚██████╔╝██║██║  ██╗███████╗
  ╚══╝╚══╝  ╚═════╝ ╚═╝╚═╝  ╚═╝╚══════╝
 
-<span style="color:#858585">// Easter egg unlocked. woike woike woike</span>
+<span style="color:var(--line-num)">// Easter egg unlocked. woike woike woike</span>
 </pre>`,
     neofetch: () => `<pre style="line-height:1.6; font-size:12px">
-<span style="color:#4EC9B0">    ██████</span>    <span style="color:#569CD6">george</span><span style="color:#D4D4D4">@</span><span style="color:#569CD6">paraschos.site</span>
-<span style="color:#4EC9B0">  ████████</span>    <span style="color:#858585">──────────────────────</span>
-<span style="color:#4EC9B0"> ████</span><span style="color:#569CD6">████</span><span style="color:#4EC9B0">█</span>    <span style="color:#569CD6">OS:</span>        <span style="color:#D4D4D4">paraschos.site v1.0</span>
-<span style="color:#4EC9B0"> ████</span><span style="color:#569CD6">████</span><span style="color:#4EC9B0">█</span>    <span style="color:#569CD6">Host:</span>      <span style="color:#D4D4D4">GitHub Pages</span>
-<span style="color:#4EC9B0"> █████████</span>    <span style="color:#569CD6">Kernel:</span>    <span style="color:#D4D4D4">HTML 5.0 / CSS 3.0</span>
-<span style="color:#4EC9B0">  ███████</span>     <span style="color:#569CD6">Shell:</span>     <span style="color:#D4D4D4">bash (this terminal)</span>
-<span style="color:#4EC9B0">    ████</span>      <span style="color:#569CD6">Editor:</span>    <span style="color:#D4D4D4">VS Code (obviously)</span>
-<span style="color:#4EC9B0">     ██</span>       <span style="color:#569CD6">Lang:</span>      <span style="color:#D4D4D4">Java, Python, JavaScript</span>
-              <span style="color:#569CD6">Backend:</span>   <span style="color:#D4D4D4">Spring Boot + JPA</span>
-              <span style="color:#569CD6">DB:</span>        <span style="color:#D4D4D4">MySQL</span>
-              <span style="color:#569CD6">University:</span><span style="color:#D4D4D4">University of the Aegean</span>
-              <span style="color:#569CD6">Status:</span>    <span style="color:#4EC9B0">available_for_hire: true</span>
-              <span style="color:#569CD6">Uptime:</span>    <span style="color:#D4D4D4">Final year</span>
-              <span style="color:#569CD6">Email:</span>     <span style="color:#CE9178">george@paraschos.site</span>
+<span style="color:var(--accent)">    ██████</span>    <span style="color:var(--accent2)">george</span><span style="color:var(--text)">@</span><span style="color:var(--accent2)">paraschos.site</span>
+<span style="color:var(--accent)">  ████████</span>    <span style="color:var(--line-num)">──────────────────────</span>
+<span style="color:var(--accent)"> ████</span><span style="color:var(--accent2)">████</span><span style="color:var(--accent)">█</span>    <span style="color:var(--accent2)">OS:</span>        <span style="color:var(--text)">paraschos.site v1.1</span>
+<span style="color:var(--accent)"> ████</span><span style="color:var(--accent2)">████</span><span style="color:var(--accent)">█</span>    <span style="color:var(--accent2)">Host:</span>      <span style="color:var(--text)">GitHub Pages</span>
+<span style="color:var(--accent)"> █████████</span>    <span style="color:var(--accent2)">Kernel:</span>    <span style="color:var(--text)">HTML 5.0 / CSS 3.0</span>
+<span style="color:var(--accent)">  ███████</span>     <span style="color:var(--accent2)">Shell:</span>     <span style="color:var(--text)">bash (this terminal)</span>
+<span style="color:var(--accent)">    ████</span>      <span style="color:var(--accent2)">Editor:</span>    <span style="color:var(--text)">VS Code (obviously)</span>
+<span style="color:var(--accent)">     ██</span>       <span style="color:var(--accent2)">Lang:</span>      <span style="color:var(--text)">Java, Python, JavaScript</span>
+              <span style="color:var(--accent2)">Backend:</span>   <span style="color:var(--text)">Spring Boot + JPA</span>
+              <span style="color:var(--accent2)">DB:</span>        <span style="color:var(--text)">MySQL</span>
+              <span style="color:var(--accent2)">University:</span><span style="color:var(--text)">University of the Aegean</span>
+              <span style="color:var(--accent2)">Status:</span>    <span style="color:var(--accent)">available_for_hire: true</span>
+              <span style="color:var(--accent2)">Uptime:</span>    <span style="color:var(--text)">Final year</span>
+              <span style="color:var(--accent2)">Email:</span>     <span style="color:var(--accent3)">george@paraschos.site</span>
 
               <span style="background:#F44747">   </span><span style="background:#FFBD2E">   </span><span style="background:#28C840">   </span><span style="background:#569CD6">   </span><span style="background:#C586C0">   </span><span style="background:#4EC9B0">   </span><span style="background:#D4D4D4">   </span>
 </pre>`,
@@ -223,24 +310,21 @@ const commands = {
 
 const terminalInput = document.getElementById('terminal-input');
 const terminalOutput = document.getElementById('terminal-output');
-const history = [];
+const cmdHistory = [];
 let historyIndex = -1;
 
 if (terminalInput) {
-    document.querySelector('.tab[data-file="terminal"]')?.addEventListener('click', () => {
-        setTimeout(() => terminalInput.focus(), 50);
-    });
-
     terminalInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             const input = terminalInput.value.trim().toLowerCase();
             if (!input) return;
 
-            history.unshift(input);
+            cmdHistory.unshift(input);
             historyIndex = -1;
 
             const cmdLine = document.createElement('div');
-            cmdLine.innerHTML = `<span style="color:#4EC9B0">george@paraschos.site:~$</span> <span style="color:#D4D4D4">${input}</span>`;
+            cmdLine.innerHTML = `<span style="color:var(--accent)">george@paraschos.site:~$</span> <span style="color:var(--text)"></span>`;
+            cmdLine.lastElementChild.textContent = input; // never inject raw user input as HTML
             terminalOutput.appendChild(cmdLine);
 
             const fn = commands[input];
@@ -249,7 +333,8 @@ if (terminalInput) {
                 result = fn();
                 trackEvent('terminal_command', { command: input });
             } else {
-                result = `<span style="color:#F44747">bash: ${input}: command not found</span><br><span class="c">// Type 'help' for available commands</span>`;
+                const safe = input.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+                result = `<span style="color:var(--red)">bash: ${safe}: command not found</span><br><span class="c">// Type 'help' for available commands</span>`;
                 terminalInput.classList.add('shake');
                 setTimeout(() => terminalInput.classList.remove('shake'), 400);
             }
@@ -262,18 +347,19 @@ if (terminalInput) {
             }
 
             terminalInput.value = '';
-            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            const editorEl = document.getElementById('editor');
+            if (editorEl) editorEl.scrollTop = editorEl.scrollHeight;
 
         } else if (e.key === 'ArrowUp') {
-            if (historyIndex < history.length - 1) {
+            if (historyIndex < cmdHistory.length - 1) {
                 historyIndex++;
-                terminalInput.value = history[historyIndex];
+                terminalInput.value = cmdHistory[historyIndex];
             }
             e.preventDefault();
         } else if (e.key === 'ArrowDown') {
             if (historyIndex > 0) {
                 historyIndex--;
-                terminalInput.value = history[historyIndex];
+                terminalInput.value = cmdHistory[historyIndex];
             } else {
                 historyIndex = -1;
                 terminalInput.value = '';
@@ -283,7 +369,9 @@ if (terminalInput) {
     });
 }
 
-// Dark/Light mode toggle
+/* ════════════════════════════════════════════════
+   THEME TOGGLE
+   ════════════════════════════════════════════════ */
 const themeToggle = document.getElementById('theme-toggle');
 const savedTheme = localStorage.getItem('theme') || 'dark';
 
@@ -301,13 +389,18 @@ if (themeToggle) {
     });
 }
 
-// Blog
+/* ════════════════════════════════════════════════
+   BLOG (index-based clicks — safe for any post content)
+   ════════════════════════════════════════════════ */
+let blogPosts = [];
+
 async function loadBlog() {
     try {
         const res = await fetch('blog/posts.json');
-        const posts = await res.json();
-        renderBlogList(posts);
-    } catch(e) {
+        blogPosts = await res.json();
+        renderBlogList(blogPosts);
+        setLineNumbers('blog');
+    } catch (e) {
         const el = document.getElementById('blog-list');
         if (el) el.innerHTML = '<span class="c">// No posts found.</span>';
     }
@@ -316,30 +409,35 @@ async function loadBlog() {
 function renderBlogList(posts) {
     const list = document.getElementById('blog-list');
     if (!list) return;
-    list.innerHTML = posts.map(post => `
-    <div class="project-row" style="padding:10px 0; cursor:pointer"
-      onclick="showBlogPost(${JSON.stringify(post).replace(/"/g, '&quot;')})">
+    list.innerHTML = posts.map((post, i) => `
+    <div class="project-row" style="padding:10px 0; cursor:pointer" role="button" tabindex="0"
+      onclick="showBlogPost(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showBlogPost(${i})}">
       <div style="display:flex; align-items:center; gap:12px;">
-        <span style="color:#858585; font-size:11px; min-width:80px">${post.date}</span>
-        <span style="color:#DCDCAA; font-weight:500">${post.title}</span>
-        <span style="color:#4EC9B0; font-size:11px; margin-left:auto">${post.tag}</span>
+        <span style="color:var(--line-num); font-size:11px; min-width:80px">${post.date}</span>
+        <span style="color:var(--accent4); font-weight:500">${post.title}</span>
+        <span style="color:var(--accent); font-size:11px; margin-left:auto">${post.tag}</span>
       </div>
-      <div style="color:#858585; font-size:12px; margin-top:4px; padding-left:92px">
+      <div style="color:var(--line-num); font-size:12px; margin-top:4px; padding-left:92px">
         ${post.preview}
       </div>
     </div>
   `).join('');
 }
 
-function showBlogPost(post) {
+function showBlogPost(index) {
+    const post = blogPosts[index];
+    if (!post) return;
     document.getElementById('blog-list').style.display = 'none';
     document.getElementById('blog-post').style.display = 'block';
-    const lines = post.content.split('\n').map(line =>
-        `<span class="line"><span class="c">${line}</span></span>`
-    ).join('');
+    const lines = post.content.split('\n').map(line => {
+        const span = document.createElement('span');
+        span.className = 'c';
+        span.textContent = line;
+        return `<span class="line">${span.outerHTML}</span>`;
+    }).join('');
     document.getElementById('blog-post-content').innerHTML = `
-    <span class="line" style="font-size:16px; color:#D4D4D4; font-weight:500">${post.title}</span>
-    <span class="line" style="color:#858585; margin-bottom:12px">${post.date} · ${post.tag}</span>
+    <span class="line" style="font-size:16px; color:var(--text); font-weight:500">${post.title}</span>
+    <span class="line" style="color:var(--line-num); margin-bottom:12px">${post.date} · ${post.tag}</span>
     <span class="line"></span>
     ${lines}
   `;
@@ -352,69 +450,22 @@ function showBlogList() {
 
 loadBlog();
 
-// Scroll progress bar
+/* ════════════════════════════════════════════════
+   SCROLL PROGRESS BAR
+   ════════════════════════════════════════════════ */
 const progressBar = document.getElementById('scroll-progress');
-
-// Minimap
-const minimapCanvas = document.getElementById('minimap-canvas');
-const minimapSlider = document.getElementById('minimap-slider');
-const minimap = document.getElementById('minimap');
 const editorEl = document.getElementById('editor');
-const SCALE = 0.1;
-
-function renderMinimap() {
-    const activeSection = document.querySelector('.file-section.active .code-content');
-    if (!activeSection || !minimapCanvas) return;
-    const canvasHeight = Math.min(activeSection.scrollHeight * SCALE, minimap.clientHeight);
-    minimapCanvas.width = minimap.clientWidth;
-    minimapCanvas.height = canvasHeight;
-    minimapCanvas.style.height = canvasHeight + 'px';
-    const ctx = minimapCanvas.getContext('2d');
-    ctx.clearRect(0, 0, minimapCanvas.width, canvasHeight);
-    const lines = activeSection.querySelectorAll('.line');
-    lines.forEach((line, i) => {
-        const y = (i / lines.length) * canvasHeight;
-        const text = line.textContent.trim();
-        if (!text) return;
-        let color = '#858585';
-        if (line.querySelector('.kw')) color = '#569CD6';
-        else if (line.querySelector('.st')) color = '#CE9178';
-        else if (line.querySelector('.c'))  color = '#6A9955';
-        else if (line.querySelector('.fn')) color = '#DCDCAA';
-        else if (line.querySelector('.pr')) color = '#9CDCFE';
-        const w = Math.min(text.length * 1.2, minimapCanvas.width - 4);
-        ctx.fillStyle = color;
-        ctx.globalAlpha = 0.6;
-        ctx.fillRect(2, y, w, 1.5);
-    });
-    updateMinimapSlider();
-}
-
-function updateMinimapSlider() {
-    if (!minimapSlider || !editorEl) return;
-    const scrollRatio = editorEl.scrollTop / (editorEl.scrollHeight - editorEl.clientHeight || 1);
-    const viewRatio = editorEl.clientHeight / editorEl.scrollHeight;
-    const sliderHeight = Math.max(viewRatio * minimap.clientHeight, 20);
-    minimapSlider.style.height = sliderHeight + 'px';
-    minimapSlider.style.top = (scrollRatio * (minimap.clientHeight - sliderHeight)) + 'px';
-}
-
-minimap?.addEventListener('click', (e) => {
-    const ratio = e.offsetY / minimap.clientHeight;
-    editorEl.scrollTop = ratio * (editorEl.scrollHeight - editorEl.clientHeight);
-});
 
 editorEl?.addEventListener('scroll', () => {
-    updateMinimapSlider();
     const scrollTop = editorEl.scrollTop;
     const scrollHeight = editorEl.scrollHeight - editorEl.clientHeight;
     const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
     if (progressBar) progressBar.style.width = progress + '%';
 });
 
-setTimeout(renderMinimap, 100);
-
-// Live GitHub Activity
+/* ════════════════════════════════════════════════
+   GITHUB ACTIVITY
+   ════════════════════════════════════════════════ */
 async function loadGitHubActivity() {
     const container = document.getElementById('github-activity');
     if (!container) return;
@@ -422,61 +473,64 @@ async function loadGitHubActivity() {
         const res = await fetch('https://api.github.com/users/paraschosg/events/public');
         const events = await res.json();
         if (!Array.isArray(events) || events.length === 0) {
-            container.innerHTML = '<span class="line" style="color:#858585">// No recent activity found.</span>';
+            container.innerHTML = '<span class="line" style="color:var(--line-num)">// No recent activity found.</span>';
             return;
         }
         const lines = events.slice(0, 20).map(event => {
             const date = new Date(event.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
             const repo = event.repo.name.replace('paraschosg/', '');
-            let icon = '⊙', action = '', color = '#858585';
-            switch(event.type) {
+            let icon = '⊙', action = '', color = 'var(--line-num)';
+            switch (event.type) {
                 case 'PushEvent':
-                    icon = '↑'; color = '#4EC9B0';
+                    icon = '↑'; color = 'var(--accent)';
                     const commits = event.payload.commits || [];
-                    const msg = commits.length > 0 ? commits[commits.length-1].message : 'pushed commits';
-                    action = `<span style="color:#4EC9B0">push</span> to <span style="color:#DCDCAA">${repo}</span> <span style="color:#858585">— ${msg.split('\n')[0].slice(0,50)}</span>`;
+                    const msg = commits.length > 0 ? commits[commits.length - 1].message : 'pushed commits';
+                    action = `<span style="color:var(--accent)">push</span> to <span style="color:var(--accent4)">${repo}</span> <span style="color:var(--line-num)">— ${msg.split('\n')[0].slice(0, 50)}</span>`;
                     break;
                 case 'CreateEvent':
-                    icon = '+'; color = '#569CD6';
-                    action = `<span style="color:#569CD6">created</span> ${event.payload.ref_type} <span style="color:#DCDCAA">${event.payload.ref || repo}</span>`;
+                    icon = '+'; color = 'var(--accent2)';
+                    action = `<span style="color:var(--accent2)">created</span> ${event.payload.ref_type} <span style="color:var(--accent4)">${event.payload.ref || repo}</span>`;
                     break;
                 case 'WatchEvent':
-                    icon = '★'; color = '#DCDCAA';
-                    action = `<span style="color:#DCDCAA">starred</span> <span style="color:#9CDCFE">${repo}</span>`;
+                    icon = '★'; color = 'var(--accent4)';
+                    action = `<span style="color:var(--accent4)">starred</span> <span style="color:var(--prop)">${repo}</span>`;
                     break;
                 case 'ForkEvent':
-                    icon = '⑂'; color = '#C586C0';
-                    action = `<span style="color:#C586C0">forked</span> <span style="color:#9CDCFE">${repo}</span>`;
+                    icon = '⑂'; color = 'var(--pink)';
+                    action = `<span style="color:var(--pink)">forked</span> <span style="color:var(--prop)">${repo}</span>`;
                     break;
                 case 'IssuesEvent':
-                    icon = '!'; color = '#F44747';
-                    action = `<span style="color:#F44747">${event.payload.action} issue</span> in <span style="color:#DCDCAA">${repo}</span>`;
+                    icon = '!'; color = 'var(--red)';
+                    action = `<span style="color:var(--red)">${event.payload.action} issue</span> in <span style="color:var(--accent4)">${repo}</span>`;
                     break;
                 case 'PullRequestEvent':
-                    icon = '⇄'; color = '#569CD6';
-                    action = `<span style="color:#569CD6">${event.payload.action} PR</span> in <span style="color:#DCDCAA">${repo}</span>`;
+                    icon = '⇄'; color = 'var(--accent2)';
+                    action = `<span style="color:var(--accent2)">${event.payload.action} PR</span> in <span style="color:var(--accent4)">${repo}</span>`;
                     break;
                 default:
-                    action = `<span style="color:#858585">${event.type.replace('Event','')} in ${repo}</span>`;
+                    action = `<span style="color:var(--line-num)">${event.type.replace('Event', '')} in ${repo}</span>`;
             }
             return `<div class="project-row" style="padding:6px 0">
         <span style="color:${color}; margin-right:8px">${icon}</span>
-        <span style="color:#858585; font-size:11px; margin-right:12px">${date}</span>
+        <span style="color:var(--line-num); font-size:11px; margin-right:12px">${date}</span>
         ${action}
       </div>`;
         }).join('');
         container.innerHTML = lines;
-    } catch(e) {
+        setLineNumbers('activity');
+    } catch (e) {
         container.innerHTML = `
-      <span class="line" style="color:#F44747">// Error fetching GitHub activity</span>
-      <span class="line" style="color:#858585">// GitHub API rate limit may have been reached.</span>
+      <span class="line" style="color:var(--red)">// Error fetching GitHub activity</span>
+      <span class="line" style="color:var(--line-num)">// GitHub API rate limit may have been reached.</span>
     `;
     }
 }
 
 loadGitHubActivity();
 
-// Clock στο status bar
+/* ════════════════════════════════════════════════
+   STATUS BAR CLOCK
+   ════════════════════════════════════════════════ */
 function updateClock() {
     const clock = document.getElementById('status-clock');
     if (!clock) return;
@@ -486,7 +540,9 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 1000);
 
-// Contributions Graph
+/* ════════════════════════════════════════════════
+   CONTRIBUTIONS GRAPH (theme-aware via CSS variables)
+   ════════════════════════════════════════════════ */
 async function loadContributions() {
     const container = document.getElementById('contributions-graph');
     if (!container) return;
@@ -504,11 +560,11 @@ async function loadContributions() {
         if (week.length > 0) weeks.push(week);
         const totalContributions = contributions.reduce((sum, d) => sum + d.count, 0);
         const getColor = (count) => {
-            if (count === 0) return '#161b22';
-            if (count <= 3)  return '#0e4429';
-            if (count <= 6)  return '#006d32';
-            if (count <= 9)  return '#26a641';
-            return '#39d353';
+            if (count === 0) return 'var(--contrib-0)';
+            if (count <= 3)  return 'var(--contrib-1)';
+            if (count <= 6)  return 'var(--contrib-2)';
+            if (count <= 9)  return 'var(--contrib-3)';
+            return 'var(--contrib-4)';
         };
         const days = ['Mon', '', 'Wed', '', 'Fri', '', ''];
         const months = [];
@@ -526,13 +582,13 @@ async function loadContributions() {
         const cellSize = 12, gap = 3, offsetX = 30, offsetY = 28;
         const svgWidth = weeks.length * (cellSize + gap) + offsetX;
         const svgHeight = 7 * (cellSize + gap) + offsetY + 20;
-        let svg = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace">`;
+        let svg = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace" role="img" aria-label="GitHub contributions in the last year">`;
         months.forEach(m => {
-            svg += `<text x="${offsetX + m.week * (cellSize + gap)}" y="16" fill="#858585" font-size="10">${m.name}</text>`;
+            svg += `<text x="${offsetX + m.week * (cellSize + gap)}" y="16" fill="var(--line-num)" font-size="10">${m.name}</text>`;
         });
         days.forEach((day, i) => {
             if (!day) return;
-            svg += `<text x="0" y="${offsetY + i * (cellSize + gap) + cellSize - 2}" fill="#858585" font-size="10">${day}</text>`;
+            svg += `<text x="0" y="${offsetY + i * (cellSize + gap) + cellSize - 2}" fill="var(--line-num)" font-size="10">${day}</text>`;
         });
         weeks.forEach((week, wi) => {
             week.forEach((day, di) => {
@@ -543,31 +599,36 @@ async function loadContributions() {
         });
         svg += '</svg>';
         container.innerHTML = `
-      <div style="margin-bottom:16px"><span style="color:#D4D4D4; font-size:14px">${totalContributions.toLocaleString()} contributions in the last year</span></div>
+      <div style="margin-bottom:16px"><span style="color:var(--text); font-size:14px">${totalContributions.toLocaleString()} contributions in the last year</span></div>
       <div style="overflow-x:auto; padding-bottom:8px">${svg}</div>
-      <div style="display:flex; align-items:center; gap:6px; margin-top:12px; font-size:11px; color:#858585">
+      <div style="display:flex; align-items:center; gap:6px; margin-top:12px; font-size:11px; color:var(--line-num)">
         <span>Less</span>
-        <span style="width:12px;height:12px;background:#161b22;display:inline-block;border-radius:2px"></span>
-        <span style="width:12px;height:12px;background:#0e4429;display:inline-block;border-radius:2px"></span>
-        <span style="width:12px;height:12px;background:#006d32;display:inline-block;border-radius:2px"></span>
-        <span style="width:12px;height:12px;background:#26a641;display:inline-block;border-radius:2px"></span>
-        <span style="width:12px;height:12px;background:#39d353;display:inline-block;border-radius:2px"></span>
+        <span style="width:12px;height:12px;background:var(--contrib-0);display:inline-block;border-radius:2px"></span>
+        <span style="width:12px;height:12px;background:var(--contrib-1);display:inline-block;border-radius:2px"></span>
+        <span style="width:12px;height:12px;background:var(--contrib-2);display:inline-block;border-radius:2px"></span>
+        <span style="width:12px;height:12px;background:var(--contrib-3);display:inline-block;border-radius:2px"></span>
+        <span style="width:12px;height:12px;background:var(--contrib-4);display:inline-block;border-radius:2px"></span>
         <span>More</span>
       </div>`;
-    } catch(e) {
-        container.innerHTML = `<span class="line" style="color:#F44747">// Error loading contributions</span>`;
+    } catch (e) {
+        container.innerHTML = `<span class="line" style="color:var(--red)">// Error loading contributions</span>`;
     }
 }
 
 loadContributions();
 
-// Loading screen
+/* ════════════════════════════════════════════════
+   LOADING SCREEN — only on the first visit of a session
+   ════════════════════════════════════════════════ */
 const loadingScreen = document.getElementById('loading-screen');
-const loadingBar = document.getElementById('loading-bar');
-const loadingMsg = document.getElementById('loading-msg');
-const loadingPct = document.getElementById('loading-pct');
 
-if (loadingScreen) {
+if (loadingScreen && sessionStorage.getItem('booted')) {
+    loadingScreen.remove();
+} else if (loadingScreen) {
+    sessionStorage.setItem('booted', '1');
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingMsg = document.getElementById('loading-msg');
+    const loadingPct = document.getElementById('loading-pct');
     const loadingSteps = [
         { pct: 15,  msg: 'Loading extensions...' },
         { pct: 30,  msg: 'Reading file system...' },
@@ -592,18 +653,21 @@ if (loadingScreen) {
         loadingMsg.textContent = step.msg;
         loadingPct.textContent = step.pct + '%';
         stepIndex++;
-        setTimeout(runLoadingStep, stepIndex === loadingSteps.length ? 400 : 250);
+        setTimeout(runLoadingStep, stepIndex === loadingSteps.length ? 300 : 150);
     }
-    setTimeout(runLoadingStep, 200);
+    setTimeout(runLoadingStep, 100);
 }
 
-// Multiplayer presence
+/* ════════════════════════════════════════════════
+   PRESENCE + EVENT TRACKING (Supabase, consent-gated)
+   ════════════════════════════════════════════════ */
 const SUPABASE_URL = 'https://kjnccezuxqfwqgwxkjzp.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqbmNjZXp1eHFmd3Fnd3hranpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMTU1MjgsImV4cCI6MjA5NjY5MTUyOH0.8fvlOTNhwqw2CHQ7hLSu33I-C6HBK-57GFtZfqxLPzE';
 const visitorId = Math.random().toString(36).slice(2);
+let presenceTimer = null;
 
-// Analytics trackEvent
 async function trackEvent(event, data = {}) {
+    if (!analyticsAllowed()) return;
     try {
         await fetch(`${SUPABASE_URL}/rest/v1/analytics`, {
             method: 'POST',
@@ -614,10 +678,11 @@ async function trackEvent(event, data = {}) {
             },
             body: JSON.stringify({ event, data })
         });
-    } catch(e) {}
+    } catch (e) {}
 }
 
 async function updatePresence() {
+    if (!analyticsAllowed()) return;
     try {
         await fetch(`${SUPABASE_URL}/rest/v1/presence`, {
             method: 'POST',
@@ -643,17 +708,22 @@ async function updatePresence() {
             if (statusbar) statusbar.insertBefore(onlineEl, statusbar.querySelector('.statusbar-right'));
         }
         onlineEl.innerHTML = `<span style="color:#28C840">●</span> ${count} online`;
-    } catch(e) {}
+    } catch (e) {}
 }
 
-updatePresence();
-setInterval(updatePresence, 15000);
-
-window.addEventListener('beforeunload', () => {
-    navigator.sendBeacon(`${SUPABASE_URL}/rest/v1/presence?id=eq.${visitorId}`, JSON.stringify({ method: 'DELETE' }));
+// sendBeacon can only POST, so use fetch + keepalive for a real DELETE.
+window.addEventListener('pagehide', () => {
+    if (!analyticsAllowed()) return;
+    fetch(`${SUPABASE_URL}/rest/v1/presence?id=eq.${visitorId}`, {
+        method: 'DELETE',
+        keepalive: true,
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    }).catch(() => {});
 });
 
-// 3D Card Effect
+/* ════════════════════════════════════════════════
+   3D PROFILE CARD
+   ════════════════════════════════════════════════ */
 const profileCard = document.querySelector('.profile-card');
 profileCard?.addEventListener('mousemove', (e) => {
     const rect = profileCard.getBoundingClientRect();
@@ -665,7 +735,9 @@ profileCard?.addEventListener('mouseleave', () => {
     profileCard.style.transform = 'perspective(400px) rotateX(0deg) rotateY(0deg) scale(1)';
 });
 
-// Tab favicon
+/* ════════════════════════════════════════════════
+   TAB FAVICON / TITLE ON BLUR
+   ════════════════════════════════════════════════ */
 const favicon = document.querySelector("link[rel='icon']");
 if (favicon) {
     const originalFavicon = favicon.href;
@@ -675,19 +747,23 @@ if (favicon) {
             document.title = "Come back!";
         } else {
             favicon.href = originalFavicon;
-            document.title = "George's corner";
+            document.title = "George Paraschos — Software Engineer";
         }
     });
 }
 
-// Service Worker
+/* ════════════════════════════════════════════════
+   SERVICE WORKER
+   ════════════════════════════════════════════════ */
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
     });
 }
 
-// Ambient Mode
+/* ════════════════════════════════════════════════
+   AMBIENT MODE
+   ════════════════════════════════════════════════ */
 const ambientOverlay = document.getElementById('ambient-overlay');
 const ambientCanvas = document.getElementById('ambient-canvas');
 if (ambientOverlay && ambientCanvas) {
@@ -702,6 +778,7 @@ if (ambientOverlay && ambientCanvas) {
         'RSA encrypt', 'vector clock', 'mutex.lock()',
     ];
     let ambientParticles = [], ambientActive = false, idleTimer = null, animFrame = null;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function resizeAmbientCanvas() {
         ambientCanvas.width = window.innerWidth;
@@ -739,7 +816,7 @@ if (ambientOverlay && ambientCanvas) {
     }
 
     function enterAmbient() {
-        if (ambientActive) return;
+        if (ambientActive || reducedMotion) return;
         ambientActive = true;
         ambientParticles = [];
         resizeAmbientCanvas();
@@ -774,7 +851,9 @@ if (ambientOverlay && ambientCanvas) {
     resetIdleTimer();
 }
 
-// Online/Offline banner
+/* ════════════════════════════════════════════════
+   ONLINE / OFFLINE BANNER
+   ════════════════════════════════════════════════ */
 const offlineBanner = document.getElementById('offline-banner');
 if (offlineBanner) {
     window.addEventListener('offline', () => offlineBanner.style.display = 'block');
@@ -782,7 +861,9 @@ if (offlineBanner) {
     if (!navigator.onLine) offlineBanner.style.display = 'block';
 }
 
-// Focus mode
+/* ════════════════════════════════════════════════
+   FOCUS MODE
+   ════════════════════════════════════════════════ */
 let focusMode = false;
 document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -791,33 +872,27 @@ document.addEventListener('keydown', (e) => {
     document.body.classList.toggle('focus-mode', focusMode);
     const hint = document.createElement('div');
     hint.textContent = focusMode ? '// Focus mode ON — press F to exit' : '// Focus mode OFF';
-    hint.style.cssText = `position:fixed;bottom:2rem;right:2rem;background:#2D2D2D;border:1px solid #3C3C3C;color:#858585;font-family:'JetBrains Mono',monospace;font-size:11px;padding:0.5rem 1rem;border-radius:4px;z-index:9999;opacity:1;transition:opacity 0.5s;`;
+    hint.style.cssText = `position:fixed;bottom:2rem;right:2rem;background:var(--tab-bg);border:1px solid var(--border);color:var(--line-num);font-family:'JetBrains Mono',monospace;font-size:11px;padding:0.5rem 1rem;border-radius:4px;z-index:9999;opacity:1;transition:opacity 0.5s;`;
     document.body.appendChild(hint);
     setTimeout(() => hint.style.opacity = '0', 1500);
     setTimeout(() => hint.remove(), 2000);
 });
 
-// Fingerprint
-async function getFingerprint() {
-    const data = [navigator.userAgent, navigator.language, screen.width + 'x' + screen.height, screen.colorDepth, new Date().getTimezoneOffset(), navigator.hardwareConcurrency, navigator.platform].join('|');
-    let hash = 0;
-    for (let i = 0; i < data.length; i++) { hash = ((hash << 5) - hash) + data.charCodeAt(i); hash |= 0; }
-    return Math.abs(hash).toString(36);
-}
-
-async function checkReturningVisitor() {
-    const fp = await getFingerprint();
-    const key = 'fp_' + fp;
-    const visits = parseInt(localStorage.getItem(key) || '0') + 1;
-    localStorage.setItem(key, visits);
+/* ════════════════════════════════════════════════
+   RETURNING VISITOR — local only, no fingerprinting
+   ════════════════════════════════════════════════ */
+function checkReturningVisitor() {
+    const visits = parseInt(localStorage.getItem('visit_count') || '0') + 1;
+    const lastVisitRaw = localStorage.getItem('last_visit'); // read BEFORE writing
+    localStorage.setItem('visit_count', String(visits));
     localStorage.setItem('last_visit', new Date().toISOString());
-    if (visits > 1) {
-        const lastVisit = new Date(localStorage.getItem('last_visit'));
-        const days = Math.floor((Date.now() - lastVisit) / 86400000);
+
+    if (visits > 1 && lastVisitRaw) {
+        const days = Math.floor((Date.now() - new Date(lastVisitRaw)) / 86400000);
         setTimeout(() => {
             const notif = document.createElement('div');
-            notif.innerHTML = `<span style="color:#4EC9B0">// Welcome back!</span><br><span style="color:#858585">// Visit #${visits} · ${days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago'}</span>`;
-            notif.style.cssText = `position:fixed;bottom:2rem;right:2rem;background:#252526;border:1px solid #3C3C3C;border-left:2px solid #4EC9B0;font-family:'JetBrains Mono',monospace;font-size:11px;padding:0.8rem 1.2rem;border-radius:4px;z-index:9999;opacity:0;transition:opacity 0.3s;line-height:1.8;`;
+            notif.innerHTML = `<span style="color:var(--accent)">// Welcome back!</span><br><span style="color:var(--line-num)">// Visit #${visits} · ${days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago'}</span>`;
+            notif.style.cssText = `position:fixed;bottom:2rem;right:2rem;background:var(--sidebar-bg);border:1px solid var(--border);border-left:2px solid var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px;padding:0.8rem 1.2rem;border-radius:4px;z-index:9999;opacity:0;transition:opacity 0.3s;line-height:1.8;`;
             document.body.appendChild(notif);
             setTimeout(() => notif.style.opacity = '1', 100);
             setTimeout(() => notif.style.opacity = '0', 4000);
@@ -828,5 +903,25 @@ async function checkReturningVisitor() {
 
 checkReturningVisitor();
 
-// Track pageview
-trackEvent('pageview');
+/* ════════════════════════════════════════════════
+   CONSENT INIT — runs last, after all declarations
+   ════════════════════════════════════════════════ */
+const consentBanner = document.getElementById('consent-banner');
+if (consentBanner) {
+    const choice = getConsent();
+    if (choice === 'granted') {
+        startAnalytics();
+    } else if (choice === null) {
+        consentBanner.style.display = 'block';
+        document.getElementById('consent-accept')?.addEventListener('click', () => {
+            localStorage.setItem(CONSENT_KEY, 'granted');
+            consentBanner.style.display = 'none';
+            startAnalytics();
+        });
+        document.getElementById('consent-decline')?.addEventListener('click', () => {
+            localStorage.setItem(CONSENT_KEY, 'denied');
+            consentBanner.style.display = 'none';
+        });
+    }
+    // 'denied' → banner stays hidden, nothing loads.
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>privacy.md · George Paraschos</title>
+    <meta name="description" content="Privacy notice for paraschos.site — what data is collected, why, and how to opt out." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/webp" href="assets/starr.webp" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <style>
+        .privacy-wrap {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+        }
+        .privacy-doc {
+            max-width: 680px;
+            width: 100%;
+            line-height: 1.9;
+        }
+        .privacy-doc h1 { font-size: 1.1rem; color: var(--muted); font-weight: 500; margin-bottom: 0.2rem; }
+        .privacy-doc h2 { font-size: 0.95rem; color: var(--accent2); font-weight: 500; margin: 1.6rem 0 0.4rem; }
+        .privacy-doc p, .privacy-doc li { color: var(--text); font-size: 13px; }
+        .privacy-doc ul { padding-left: 1.4rem; margin: 0.3rem 0; }
+        .privacy-doc .dim { color: var(--line-num); }
+        .privacy-doc a { color: var(--accent); text-decoration: underline; }
+        .privacy-doc code { color: var(--accent3); }
+        .privacy-back {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            border: 1px solid var(--border);
+            padding: 0.4rem 1rem;
+            border-radius: 3px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .privacy-back:hover { border-color: var(--accent); background: rgba(78,201,176,0.05); text-decoration: none; }
+        .consent-reset {
+            font-family: var(--mono);
+            font-size: 12px;
+            margin-top: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+        }
+        .consent-reset:hover { border-color: var(--accent); }
+    </style>
+</head>
+
+<body>
+
+<!-- TITLE BAR -->
+<div class="titlebar">
+    <div class="titlebar-dots">
+        <span class="dot-red"></span>
+        <span class="dot-yellow"></span>
+        <span class="dot-green"></span>
+    </div>
+    ~/george-paraschos · privacy.md
+</div>
+
+<div class="privacy-wrap">
+    <div class="privacy-doc">
+        <a href="/" class="privacy-back">← Return home</a>
+
+        <h1># Privacy notice</h1>
+        <p class="dim">## Last updated: June 2026 · Applies to paraschos.site</p>
+
+        <h2>// Who runs this site</h2>
+        <p>This is the personal portfolio of George Paraschos. For anything privacy-related, email <a href="mailto:george@paraschos.site">george@paraschos.site</a>.</p>
+
+        <h2>// What runs only if you allow it</h2>
+        <p>When you first visit, a banner asks whether to enable analytics. If you <strong>decline</strong> (or never answer), none of the following loads:</p>
+        <ul>
+            <li><strong>Google Analytics</strong> — anonymized page-view statistics. Google may set cookies. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's privacy policy</a>.</li>
+            <li><strong>Visit counter</strong> (counterapi.dev) — increments a single number, stores nothing about you.</li>
+            <li><strong>Presence &amp; events</strong> (Supabase) — a random session ID (e.g. <code>k3x9f2</code>) to show the "N online" count, plus anonymous events like "projects tab opened". No names, no IP storage on my side, no profiles.</li>
+        </ul>
+        <p>You can change your mind any time:</p>
+        <button class="consent-reset" onclick="localStorage.removeItem('analytics-consent'); alert('Choice cleared. The consent banner will appear on your next visit to the homepage.');">Reset my analytics choice</button>
+
+        <h2>// What this site stores in your browser</h2>
+        <p>A few values in <code>localStorage</code>, which never leave your device: your theme preference, a local visit count for the "welcome back" message, and your analytics choice. Clearing your browser data removes all of it.</p>
+
+        <h2>// What this site does NOT do</h2>
+        <ul>
+            <li>No browser fingerprinting.</li>
+            <li>No advertising or ad networks.</li>
+            <li>No selling or sharing of data with third parties beyond the services named above.</li>
+            <li>No tracking across other websites.</li>
+        </ul>
+
+        <h2>// Third-party requests that are part of the site itself</h2>
+        <p>Regardless of your analytics choice, your browser fetches fonts from Google Fonts and public data from the GitHub API (my recent activity and contributions graph) to render the page. These providers see your IP address as part of serving the request, as with any web resource.</p>
+
+        <h2>// Your rights</h2>
+        <p>Under the GDPR you can request access to, correction of, or deletion of any data concerning you, and you can lodge a complaint with the Hellenic Data Protection Authority (<a href="https://www.dpa.gr" target="_blank" rel="noopener">dpa.gr</a>). Given how little this site collects, the fastest route is simply emailing me.</p>
+    </div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="statusbar">
+    <span>⎇ main</span>
+    <span>George Paraschos</span>
+    <div class="statusbar-right">
+        <span>UTF-8</span>
+        <span>Markdown</span>
+        <span>Ln 1, Col 1</span>
+    </div>
+</div>
+
+</body>
+</html>

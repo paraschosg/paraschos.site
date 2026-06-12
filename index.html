@@ -3,7 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>George's corner</title>
+  <title>George Paraschos — Software Engineer</title>
+  <meta name="description" content="Software engineer and final-year Information & Communication Systems Engineering student at the University of the Aegean. Spring Boot, distributed systems, cryptography." />
+  <link rel="canonical" href="https://paraschos.site" />
+
+  <!-- Open Graph / link previews -->
+  <meta property="og:title" content="George Paraschos — Software Engineer" />
+  <meta property="og:description" content="Backend systems, distributed applications, and cryptography. Available for internships and collaborations." />
+  <meta property="og:url" content="https://paraschos.site" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://paraschos.site/assets/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="George Paraschos — Software Engineer" />
+  <meta name="twitter:description" content="Backend systems, distributed applications, and cryptography." />
+  <meta name="twitter:image" content="https://paraschos.site/assets/og-image.png" />
+
   <link rel="icon" type="image/webp" href="assets/starr.webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
@@ -11,19 +25,13 @@
 
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#007ACC" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="paraschos.site" />
-</head>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-7T6VM4DQBP"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-7T6VM4DQBP');
-</script>
+  <!-- Google Analytics is loaded by js/script.js only after the visitor accepts analytics. -->
+</head>
 
 <body>
 
@@ -85,39 +93,39 @@
   ~/george-paraschos · Portfolio
   <button id="theme-toggle" style="
     position:absolute; right: 180px;
-    background:none; border:none; color:#CCCCCC;
+    background:none; border:none; color:inherit;
     font-family:'JetBrains Mono',monospace; font-size:11px;
-    cursor:pointer; padding:2px 6px;
+    padding:2px 6px;
     border-radius:3px; transition:background 0.2s;
-  " title="Toggle theme">☀</button>
+  " title="Toggle theme" aria-label="Toggle light/dark theme">☀</button>
   <div class="titlebar-available"><span class="live-dot"></span></div>
 </div>
 
 <!-- TABS -->
-<div class="tabs">
-  <div class="tab active" data-file="profile" onclick="switchTab(this, 'profile')">
+<div class="tabs" role="tablist" aria-label="Site sections">
+  <div class="tab active" data-file="profile" role="tab" tabindex="0" aria-selected="true">
     <span class="tab-icon md">M</span> profile.md
   </div>
-  <div class="tab" data-file="projects" onclick="switchTab(this, 'projects')">
+  <div class="tab" data-file="projects" role="tab" tabindex="0" aria-selected="false">
     <span class="tab-icon ts">▸</span> projects.dir
   </div>
-  <div class="tab" data-file="skills" onclick="switchTab(this, 'skills')">
+  <div class="tab" data-file="skills" role="tab" tabindex="0" aria-selected="false">
     <span class="tab-icon json">{}</span> skills.json
   </div>
-  <div class="tab" data-file="contact" onclick="switchTab(this, 'contact')">
+  <div class="tab" data-file="contact" role="tab" tabindex="0" aria-selected="false">
     <span class="tab-icon sh">$</span> contact.sh
   </div>
-  <div class="tab" data-file="terminal" onclick="switchTab(this, 'terminal')">
+  <div class="tab" data-file="terminal" role="tab" tabindex="0" aria-selected="false">
     <span class="tab-icon sh">$</span> terminal
   </div>
-  <div class="tab" data-file="blog" onclick="switchTab(this, 'blog')">
-    <span class="tab-icon md" style="color:#CE9178">B</span> blog.md
+  <div class="tab" data-file="blog" role="tab" tabindex="0" aria-selected="false">
+    <span class="tab-icon md" style="color:var(--accent3)">B</span> blog.md
   </div>
-  <div class="tab" data-file="activity" onclick="switchTab(this, 'activity')">
-    <span class="tab-icon log" style="color:#CE9178">⊙</span> activity.log
+  <div class="tab" data-file="activity" role="tab" tabindex="0" aria-selected="false">
+    <span class="tab-icon log">⊙</span> activity.log
   </div>
-  <div class="tab" data-file="contributions" onclick="switchTab(this, 'contributions')">
-    <span class="tab-icon" style="color:#4EC9B0">▦</span> contributions.svg
+  <div class="tab" data-file="contributions" role="tab" tabindex="0" aria-selected="false">
+    <span class="tab-icon" style="color:var(--accent)">▦</span> contributions.svg
   </div>
 </div>
 
@@ -137,33 +145,36 @@
       <div class="sidebar-title">Explorer</div>
 
       <div class="sidebar-group-label">about/</div>
-      <div class="sidebar-item active" onclick="switchTabById('profile')">
+      <div class="sidebar-item active" data-file="profile" role="button" tabindex="0">
         <span class="file-icon">M</span> profile.md
       </div>
-      <div class="sidebar-item" onclick="switchTabById('skills')">
+      <div class="sidebar-item" data-file="skills" role="button" tabindex="0">
         <span class="file-icon">{}</span> skills.json
       </div>
 
       <div class="sidebar-group-label">work/</div>
-      <div class="sidebar-item" onclick="switchTabById('projects')">
+      <div class="sidebar-item" data-file="projects" role="button" tabindex="0">
         <span class="file-icon">▸</span> projects.dir
       </div>
-      <div class="sidebar-item" onclick="switchTabById('blog')">
-        <span class="file-icon" style="color:#CE9178">B</span> blog.md
+      <div class="sidebar-item" data-file="blog" role="button" tabindex="0">
+        <span class="file-icon" style="color:var(--accent3)">B</span> blog.md
       </div>
 
       <div class="sidebar-group-label">meta/</div>
-      <div class="sidebar-item" onclick="switchTabById('contact')">
+      <div class="sidebar-item" data-file="contact" role="button" tabindex="0">
         <span class="file-icon">$</span> contact.sh
       </div>
-      <div class="sidebar-item" onclick="window.open('https://www.linkedin.com/in/georgios-paraschos-1a366521b/', '_blank')">
+      <div class="sidebar-item" data-href="https://www.linkedin.com/in/georgios-paraschos-1a366521b/" role="button" tabindex="0">
         <span class="file-icon" style="color:#0A66C2">in</span> linkedin.json
       </div>
-      <div class="sidebar-item" onclick="switchTabById('activity')">
-        <span class="file-icon" style="color:#CE9178">⊙</span> activity.log
+      <div class="sidebar-item" data-file="activity" role="button" tabindex="0">
+        <span class="file-icon" style="color:var(--accent3)">⊙</span> activity.log
       </div>
-      <div class="sidebar-item" onclick="switchTabById('contributions')">
-        <span class="file-icon" style="color:#4EC9B0">▦</span> contributions.svg
+      <div class="sidebar-item" data-file="contributions" role="button" tabindex="0">
+        <span class="file-icon" style="color:var(--accent)">▦</span> contributions.svg
+      </div>
+      <div class="sidebar-item" data-href="/privacy.html" data-self="true" role="button" tabindex="0">
+        <span class="file-icon" style="color:var(--accent4)">§</span> privacy.md
       </div>
     </div>
   </div>
@@ -202,15 +213,15 @@
         <span class="line"><span class="c">// honest about their guarantees.</span></span>
         <span class="line"></span>
         <span class="line"><span class="kw">const</span> <span class="fn">getInTouch</span> <span class="op">=</span> () <span class="op">=&gt;</span> {</span>
-        <span class="line">  <span class="kw">return</span> <span class="st">"<a href='mailto:george@paraschos.site' style='color:#CE9178'>george@paraschos.site</a>"</span><span class="op">;</span></span>
+        <span class="line">  <span class="kw">return</span> <span class="st">"<a href='mailto:george@paraschos.site' style='color:var(--accent3)'>george@paraschos.site</a>"</span><span class="op">;</span></span>
         <span class="line">}<span class="op">;</span></span>
         <span class="line"></span>
         <span class="line"><span class="kw">const</span> <span class="fn">findMeAt</span> <span class="op">=</span> () <span class="op">=&gt;</span> {</span>
-        <span class="line">  <span class="kw">return</span> <span class="st">"<a href='https://github.com/paraschosg' target='_blank' style='color:#CE9178'>github.com/paraschosg</a>"</span><span class="op">;</span></span>
+        <span class="line">  <span class="kw">return</span> <span class="st">"<a href='https://github.com/paraschosg' target='_blank' rel='noopener' style='color:var(--accent3)'>github.com/paraschosg</a>"</span><span class="op">;</span></span>
         <span class="line">}<span class="op">;</span></span>
         <span class="line"></span>
         <span class="line"><span class="kw">const</span> <span class="fn">connectOn</span> <span class="op">=</span> () <span class="op">=&gt;</span> {</span>
-        <span class="line">  <span class="kw">return</span> <span class="st">"<a href='https://www.linkedin.com/in/georgios-paraschos-1a366521b/' target='_blank' style='color:#CE9178'>linkedin.com/in/george-paraschos</a>"</span><span class="op">;</span></span>
+        <span class="line">  <span class="kw">return</span> <span class="st">"<a href='https://www.linkedin.com/in/georgios-paraschos-1a366521b/' target='_blank' rel='noopener' style='color:var(--accent3)'>linkedin.com/in/george-paraschos</a>"</span><span class="op">;</span></span>
         <span class="line">}<span class="op">;</span></span>
       </div>
     </div>
@@ -219,16 +230,16 @@
     <div class="file-section" id="file-projects">
       <div class="line-numbers" id="ln-projects"></div>
       <div class="code-content">
-        <span class="line"><span class="c">$ cat projects.dir</span>                                    <span class="line-num" style="color:#555">— 2026-06-09</span></span>
+        <span class="line"><span class="c">$ cat projects.dir</span>                                    <span style="color:var(--line-num)">— 2026-06-09</span></span>
         <span class="line"></span>
-        <span class="line" style="color:#858585">PROJECTS/</span>
+        <span class="line" style="color:var(--line-num)">PROJECTS/</span>
         <span class="line"></span>
-        <span class="line" style="font-size:18px; color:#D4D4D4; font-weight:400">Three projects worth telling you about.</span>
-        <span class="line" style="color:#858585">Click to expand.</span>
+        <span class="line" style="font-size:18px; color:var(--text); font-weight:400">Three projects worth telling you about.</span>
+        <span class="line" style="color:var(--line-num)">Click to expand.</span>
         <span class="line"></span>
 
         <div class="project-row">
-          <div class="project-header" onclick="toggleProject(this)">
+          <div class="project-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleProject(this)">
             <span class="project-num">01</span>
             <span class="project-num project-toggle">▶</span>
             <span class="project-name">Airline Management System</span>
@@ -236,20 +247,20 @@
             <span class="project-type">SOLO BUILD +</span>
           </div>
           <div class="project-body">
-            <span class="line" style="color:#858585">Role: Builder &amp; Maintainer</span>
+            <span class="line" style="color:var(--line-num)">Role: Builder &amp; Maintainer</span>
             <span class="line"></span>
             <span class="line">— Full-stack web application managing flights, bookings, and passengers</span>
             <span class="line">— Flight state machine: Scheduled → Boarding → Departed → Arrived</span>
             <span class="line">— RESTful API backend with Spring Boot and Spring Data JPA</span>
             <span class="line">— Vanilla JS frontend with no framework dependencies</span>
             <span class="line"></span>
-            <span class="line" style="color:#858585">Spring Boot &nbsp; Spring Data JPA &nbsp; MySQL &nbsp; JavaScript &nbsp; HTML/CSS</span>
-            <span class="line" style="margin-top:6px"><a href="https://github.com/paraschosg/airline-management-system" target="_blank" style="color:#4EC9B0">github.com/paraschosg/airline-management-system ↗</a></span>
+            <span class="line" style="color:var(--line-num)">Spring Boot &nbsp; Spring Data JPA &nbsp; MySQL &nbsp; JavaScript &nbsp; HTML/CSS</span>
+            <span class="line" style="margin-top:6px"><a href="https://github.com/paraschosg/airline-management-system" target="_blank" rel="noopener" style="color:var(--accent)">github.com/paraschosg/airline-management-system ↗</a></span>
           </div>
         </div>
 
         <div class="project-row">
-          <div class="project-header" onclick="toggleProject(this)">
+          <div class="project-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleProject(this)">
             <span class="project-num">02</span>
             <span class="project-num project-toggle">▶</span>
             <span class="project-name">Distributed Systems Labs</span>
@@ -257,7 +268,7 @@
             <span class="project-type">COURSEWORK +</span>
           </div>
           <div class="project-body">
-            <span class="line" style="color:#858585">Role: Implementer</span>
+            <span class="line" style="color:var(--line-num)">Role: Implementer</span>
             <span class="line"></span>
             <span class="line">— Ricart-Agrawala mutual exclusion protocol</span>
             <span class="line">— Lamport &amp; vector clocks, space-time diagrams</span>
@@ -265,13 +276,13 @@
             <span class="line">— Pastry DHT routing implementation</span>
             <span class="line">— UDP server and concurrent Java threading</span>
             <span class="line"></span>
-            <span class="line" style="color:#858585">Java &nbsp; UDP Sockets &nbsp; Concurrency &nbsp; Threading</span>
-            <span class="line" style="margin-top:6px"><a href="https://github.com/paraschosg" target="_blank" style="color:#4EC9B0">github.com/paraschosg ↗</a></span>
+            <span class="line" style="color:var(--line-num)">Java &nbsp; UDP Sockets &nbsp; Concurrency &nbsp; Threading</span>
+            <span class="line" style="margin-top:6px"><a href="https://github.com/paraschosg" target="_blank" rel="noopener" style="color:var(--accent)">github.com/paraschosg ↗</a></span>
           </div>
         </div>
 
         <div class="project-row">
-          <div class="project-header" onclick="toggleProject(this)">
+          <div class="project-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleProject(this)">
             <span class="project-num">03</span>
             <span class="project-num project-toggle">▶</span>
             <span class="project-name">Cryptography Implementations</span>
@@ -279,15 +290,15 @@
             <span class="project-type">COURSEWORK +</span>
           </div>
           <div class="project-body">
-            <span class="line" style="color:#858585">Role: Analyst &amp; Implementer</span>
+            <span class="line" style="color:var(--line-num)">Role: Analyst &amp; Implementer</span>
             <span class="line"></span>
             <span class="line">— RSA, ElGamal, and DSA scheme implementations</span>
             <span class="line">— Håstad's broadcast attack exploration</span>
             <span class="line">— Group theory problems in Z*ₙ</span>
             <span class="line">— Number-theoretic vulnerability analysis</span>
             <span class="line"></span>
-            <span class="line" style="color:#858585">Python &nbsp; RSA &nbsp; ElGamal &nbsp; Number Theory</span>
-            <span class="line" style="margin-top:6px"><a href="https://github.com/paraschosg" target="_blank" style="color:#4EC9B0">github.com/paraschosg ↗</a></span>
+            <span class="line" style="color:var(--line-num)">Python &nbsp; RSA &nbsp; ElGamal &nbsp; Number Theory</span>
+            <span class="line" style="margin-top:6px"><a href="https://github.com/paraschosg" target="_blank" rel="noopener" style="color:var(--accent)">github.com/paraschosg ↗</a></span>
           </div>
         </div>
 
@@ -344,10 +355,10 @@
         <span class="line"><span class="fn">echo</span> <span class="st">"Open to internships, collaborations,"</span></span>
         <span class="line"><span class="fn">echo</span> <span class="st">"and interesting engineering problems."</span></span>
         <span class="line"></span>
-        <span class="line"><span class="kw">EMAIL</span><span class="op">=</span><span class="st">"<a href='mailto:george@paraschos.site' style='color:#CE9178'>george@paraschos.site</a>"</span></span>
-        <span class="line"><span class="kw">GITHUB</span><span class="op">=</span><span class="st">"<a href='https://github.com/paraschosg' target='_blank' style='color:#CE9178'>github.com/paraschosg</a>"</span></span>
-        <span class="line"><span class="kw">LINKEDIN</span><span class="op">=</span><span class="st">"<a href='https://www.linkedin.com/in/georgios-paraschos-1a366521b/' target='_blank' style='color:#CE9178'>linkedin.com/in/george-paraschos</a>"</span></span>
-        <span class="line"><span class="kw">SITE</span><span class="op">=</span><span class="st">"<a href='https://paraschos.site' style='color:#CE9178'>paraschos.site</a>"</span></span>
+        <span class="line"><span class="kw">EMAIL</span><span class="op">=</span><span class="st">"<a href='mailto:george@paraschos.site' style='color:var(--accent3)'>george@paraschos.site</a>"</span></span>
+        <span class="line"><span class="kw">GITHUB</span><span class="op">=</span><span class="st">"<a href='https://github.com/paraschosg' target='_blank' rel='noopener' style='color:var(--accent3)'>github.com/paraschosg</a>"</span></span>
+        <span class="line"><span class="kw">LINKEDIN</span><span class="op">=</span><span class="st">"<a href='https://www.linkedin.com/in/georgios-paraschos-1a366521b/' target='_blank' rel='noopener' style='color:var(--accent3)'>linkedin.com/in/george-paraschos</a>"</span></span>
+        <span class="line"><span class="kw">SITE</span><span class="op">=</span><span class="st">"<a href='https://paraschos.site' style='color:var(--accent3)'>paraschos.site</a>"</span></span>
         <span class="line"></span>
         <span class="line"><span class="fn">send_message</span>() {</span>
         <span class="line">  <span class="kw">local</span> recipient<span class="op">=</span><span class="st">"$EMAIL"</span></span>
@@ -361,6 +372,7 @@
         <span class="line"><span class="c"># — george@paraschos.site</span></span>
         <span class="line"><span class="c"># — Available for opportunities</span></span>
         <span class="line"><span class="c"># — Based in Greece</span></span>
+        <span class="line"><span class="c"># — Privacy: <a href="/privacy.html" style="color:var(--muted); text-decoration:underline">paraschos.site/privacy</a></span></span>
       </div>
     </div>
 
@@ -374,11 +386,12 @@
           <span class="line"></span>
         </div>
         <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
-          <span style="color:#4EC9B0">george@paraschos.site:~$</span>
+          <span style="color:var(--accent)">george@paraschos.site:~$</span>
+          <label for="terminal-input" style="display:none">Terminal command</label>
           <input id="terminal-input" type="text" autocomplete="off" spellcheck="false"
-                 style="background:transparent; border:none; outline:none; color:#D4D4D4;
+                 style="background:transparent; border:none; outline:none; color:var(--text);
                  font-family:'JetBrains Mono',monospace; font-size:13px; flex:1;
-                 cursor:text !important;" />
+                 cursor:text;" />
         </div>
       </div>
     </div>
@@ -392,8 +405,8 @@
         <span class="line"></span>
         <div id="blog-list"></div>
         <div id="blog-post" style="display:none">
-          <span class="line" id="back-btn" onclick="showBlogList()"
-                style="color:#4EC9B0; cursor:pointer; display:inline-block; margin-bottom:8px;">
+          <span class="line" id="back-btn" role="button" tabindex="0" onclick="showBlogList()"
+                style="color:var(--accent); cursor:pointer; display:inline-block; margin-bottom:8px;">
             ← back to posts
           </span>
           <div id="blog-post-content"></div>
@@ -409,7 +422,7 @@
         <span class="line"><span class="c"># Live GitHub activity — paraschosg</span></span>
         <span class="line"></span>
         <div id="github-activity">
-          <span class="line" style="color:#858585">Loading activity...</span>
+          <span class="line" style="color:var(--line-num)">Loading activity...</span>
         </div>
       </div>
     </div>
@@ -420,20 +433,32 @@
         <span class="line"><span class="c"># GitHub contribution activity — paraschosg</span></span>
         <span class="line"></span>
         <div id="contributions-graph" style="padding: 16px 0;">
-          <span class="line" style="color:#858585">Loading contributions...</span>
+          <span class="line" style="color:var(--line-num)">Loading contributions...</span>
         </div>
       </div>
     </div>
   </div><!-- /editor -->
 </div><!-- /editor-area -->
 
+<!-- CONSENT BANNER -->
+<div class="consent-banner" id="consent-banner" style="display:none" role="dialog" aria-label="Analytics consent">
+  <span class="c">// This site can use Google Analytics and an anonymous visit counter</span>
+  <span class="c">// to see which pages are useful. No ads, no fingerprinting, no tracking</span>
+  <span class="c">// across other sites. The site works exactly the same either way.</span>
+  <div class="consent-actions">
+    <button class="consent-btn primary" id="consent-accept">Allow analytics</button>
+    <button class="consent-btn" id="consent-decline">Decline</button>
+    <a href="/privacy.html" class="consent-link">privacy.md</a>
+  </div>
+</div>
+
 <!-- STATUS BAR -->
 <div class="statusbar">
   <span>⎇ main</span>
-  <span> George Paraschos</span>
+  <span>George Paraschos</span>
   <div class="statusbar-right">
     <span>UTF-8</span>
-    <span>TypeScript</span>
+    <span>JavaScript</span>
     <span>Ln 1, Col 1</span>
     <span id="status-clock"></span>
   </div>
