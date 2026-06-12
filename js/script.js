@@ -899,3 +899,101 @@ document.addEventListener('mousemove', () => {
 window.addEventListener('resize', resizeAmbientCanvas);
 resizeAmbientCanvas();
 resetIdleTimer();
+
+// Online/Offline banner
+const offlineBanner = document.getElementById('offline-banner');
+
+window.addEventListener('offline', () => {
+    offlineBanner.style.display = 'block';
+});
+
+window.addEventListener('online', () => {
+    offlineBanner.style.display = 'none';
+});
+
+if (!navigator.onLine) offlineBanner.style.display = 'block';
+
+// Focus mode (press F)
+let focusMode = false;
+
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key !== 'f' && e.key !== 'F') return;
+
+    focusMode = !focusMode;
+    document.body.classList.toggle('focus-mode', focusMode);
+
+    // Show hint
+    const hint = document.createElement('div');
+    hint.textContent = focusMode ? '// Focus mode ON — press F to exit' : '// Focus mode OFF';
+    hint.style.cssText = `
+    position: fixed; bottom: 2rem; right: 2rem;
+    background: #2D2D2D; border: 1px solid #3C3C3C;
+    color: #858585; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; padding: 0.5rem 1rem; border-radius: 4px;
+    z-index: 9999; opacity: 1; transition: opacity 0.5s;
+  `;
+    document.body.appendChild(hint);
+    setTimeout(() => { hint.style.opacity = '0'; }, 1500);
+    setTimeout(() => hint.remove(), 2000);
+});
+
+// Fingerprint — returning visitor detection
+async function getFingerprint() {
+    const data = [
+        navigator.userAgent,
+        navigator.language,
+        screen.width + 'x' + screen.height,
+        screen.colorDepth,
+        new Date().getTimezoneOffset(),
+        navigator.hardwareConcurrency,
+        navigator.platform,
+    ].join('|');
+
+    // Simple hash
+    let hash = 0;
+    for (let i = 0; i < data.length; i++) {
+        hash = ((hash << 5) - hash) + data.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash).toString(36);
+}
+
+async function checkReturningVisitor() {
+    const fp = await getFingerprint();
+    const key = 'fp_' + fp;
+    const visits = parseInt(localStorage.getItem(key) || '0') + 1;
+    localStorage.setItem(key, visits);
+    localStorage.setItem('last_visit', new Date().toISOString());
+
+    if (visits > 1) {
+        const lastVisit = new Date(localStorage.getItem('last_visit'));
+        const days = Math.floor((Date.now() - lastVisit) / 86400000);
+
+        // Show welcome back notification
+        setTimeout(() => {
+            const notif = document.createElement('div');
+            notif.innerHTML = `
+        <span style="color:#4EC9B0">// Welcome back!</span><br>
+        <span style="color:#858585">// Visit #${visits} · 
+        ${days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago'}</span>
+      `;
+            notif.style.cssText = `
+        position: fixed; bottom: 2rem; right: 2rem;
+        background: #252526; border: 1px solid #3C3C3C;
+        border-left: 2px solid #4EC9B0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px; padding: 0.8rem 1.2rem;
+        border-radius: 4px; z-index: 9999;
+        opacity: 0; transition: opacity 0.3s;
+        line-height: 1.8;
+      `;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.style.opacity = '1', 100);
+            setTimeout(() => notif.style.opacity = '0', 4000);
+            setTimeout(() => notif.remove(), 4300);
+        }, 2000);
+    }
+}
+
+checkReturningVisitor();

@@ -505,3 +505,13 @@ body.light .pr { color: #001080; }
     0%, 100% { opacity: 0; }
     50% { opacity: 1; }
 }
+
+/* ── FOCUS MODE ── */
+body.focus-mode .sidebar { display: none; }
+body.focus-mode .tabs { display: none; }
+body.focus-mode .titlebar { display: none; }
+body.focus-mode .statusbar { display: none; }
+body.focus-mode .minimap { display: none; }
+body.focus-mode .editor {
+    padding: 2rem 4rem;
+}
