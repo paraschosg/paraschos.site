@@ -29,8 +29,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="paraschos.site" />
-
-  <!-- Google Analytics is loaded by js/script.js only after the visitor accepts analytics. -->
 </head>
 
 <body>
@@ -103,28 +101,28 @@
 
 <!-- TABS -->
 <div class="tabs" role="tablist" aria-label="Site sections">
-  <div class="tab active" data-file="profile" role="tab" tabindex="0" aria-selected="true">
+  <div class="tab active" data-file="profile" role="tab" tabindex="0" aria-selected="true" onclick="switchTab(this, 'profile')">
     <span class="tab-icon md">M</span> profile.md
   </div>
-  <div class="tab" data-file="projects" role="tab" tabindex="0" aria-selected="false">
+  <div class="tab" data-file="projects" role="tab" tabindex="0" aria-selected="false" onclick="switchTab(this, 'projects')">
     <span class="tab-icon ts">▸</span> projects.dir
   </div>
-  <div class="tab" data-file="skills" role="tab" tabindex="0" aria-selected="false">
+  <div class="tab" data-file="skills" role="tab" tabindex="0" aria-selected="false" onclick="switchTab(this, 'skills')">
     <span class="tab-icon json">{}</span> skills.json
   </div>
-  <div class="tab" data-file="contact" role="tab" tabindex="0" aria-selected="false">
+  <div class="tab" data-file="contact" role="tab" tabindex="0" aria-selected="false" onclick="switchTab(this, 'contact')">
     <span class="tab-icon sh">$</span> contact.sh
   </div>
-  <div class="tab" data-file="terminal" role="tab" tabindex="0" aria-selected="false">
+  <div class="tab" data-file="terminal" role="tab" tabindex="0" aria-selected="false" onclick="switchTab(this, 'terminal')">
     <span class="tab-icon sh">$</span> terminal
   </div>
-  <div class="tab" data-file="blog" role="tab" tabindex="0" aria-selected="false">
+  <div class="tab" data-file="blog" role="tab" tabindex="0" aria-selected="false" onclick="switchTab(this, 'blog')">
     <span class="tab-icon md" style="color:var(--accent3)">B</span> blog.md
   </div>
-  <div class="tab" data-file="activity" role="tab" tabindex="0" aria-selected="false">
+  <div class="tab" data-file="activity" role="tab" tabindex="0" aria-selected="false" onclick="switchTab(this, 'activity')">
     <span class="tab-icon log">⊙</span> activity.log
   </div>
-  <div class="tab" data-file="contributions" role="tab" tabindex="0" aria-selected="false">
+  <div class="tab" data-file="contributions" role="tab" tabindex="0" aria-selected="false" onclick="switchTab(this, 'contributions')">
     <span class="tab-icon" style="color:var(--accent)">▦</span> contributions.svg
   </div>
 </div>
@@ -144,37 +142,40 @@
     <div class="sidebar-section">
       <div class="sidebar-title">Explorer</div>
 
-      <div class="sidebar-group-label">about/</div>
-      <div class="sidebar-item active" data-file="profile" role="button" tabindex="0">
-        <span class="file-icon">M</span> profile.md
-      </div>
-      <div class="sidebar-item" data-file="skills" role="button" tabindex="0">
-        <span class="file-icon">{}</span> skills.json
-      </div>
-
-      <div class="sidebar-group-label">work/</div>
-      <div class="sidebar-item" data-file="projects" role="button" tabindex="0">
-        <span class="file-icon">▸</span> projects.dir
-      </div>
-      <div class="sidebar-item" data-file="blog" role="button" tabindex="0">
-        <span class="file-icon" style="color:var(--accent3)">B</span> blog.md
+      <div class="sidebar-group-label" onclick="toggleSidebarGroup(this)">about/</div>
+      <div class="sidebar-group-items">
+        <div class="sidebar-item active" onclick="switchTabById('profile')">
+          <span class="file-icon">M</span> profile.md
+        </div>
+        <div class="sidebar-item" onclick="switchTabById('skills')">
+          <span class="file-icon">{}</span> skills.json
+        </div>
       </div>
 
-      <div class="sidebar-group-label">meta/</div>
-      <div class="sidebar-item" data-file="contact" role="button" tabindex="0">
-        <span class="file-icon">$</span> contact.sh
+      <div class="sidebar-group-label" onclick="toggleSidebarGroup(this)">work/</div>
+      <div class="sidebar-group-items">
+        <div class="sidebar-item" onclick="switchTabById('projects')">
+          <span class="file-icon">▸</span> projects.dir
+        </div>
+        <div class="sidebar-item" onclick="switchTabById('blog')">
+          <span class="file-icon" style="color:var(--accent3)">B</span> blog.md
+        </div>
       </div>
-      <div class="sidebar-item" data-href="https://www.linkedin.com/in/georgios-paraschos-1a366521b/" role="button" tabindex="0">
-        <span class="file-icon" style="color:#0A66C2">in</span> linkedin.json
-      </div>
-      <div class="sidebar-item" data-file="activity" role="button" tabindex="0">
-        <span class="file-icon" style="color:var(--accent3)">⊙</span> activity.log
-      </div>
-      <div class="sidebar-item" data-file="contributions" role="button" tabindex="0">
-        <span class="file-icon" style="color:var(--accent)">▦</span> contributions.svg
-      </div>
-      <div class="sidebar-item" data-href="/privacy.html" data-self="true" role="button" tabindex="0">
-        <span class="file-icon" style="color:var(--accent4)">§</span> privacy.md
+
+      <div class="sidebar-group-label" onclick="toggleSidebarGroup(this)">meta/</div>
+      <div class="sidebar-group-items">
+        <div class="sidebar-item" onclick="switchTabById('contact')">
+          <span class="file-icon">$</span> contact.sh
+        </div>
+        <div class="sidebar-item" onclick="window.open('https://www.linkedin.com/in/georgios-paraschos-1a366521b/', '_blank')">
+          <span class="file-icon" style="color:#0A66C2">in</span> linkedin.json
+        </div>
+        <div class="sidebar-item" onclick="switchTabById('activity')">
+          <span class="file-icon" style="color:var(--accent3)">⊙</span> activity.log
+        </div>
+        <div class="sidebar-item" onclick="switchTabById('contributions')">
+          <span class="file-icon" style="color:var(--accent)">▦</span> contributions.svg
+        </div>
       </div>
     </div>
   </div>
@@ -372,7 +373,6 @@
         <span class="line"><span class="c"># — george@paraschos.site</span></span>
         <span class="line"><span class="c"># — Available for opportunities</span></span>
         <span class="line"><span class="c"># — Based in Greece</span></span>
-        <span class="line"><span class="c"># — Privacy: <a href="/privacy.html" style="color:var(--muted); text-decoration:underline">paraschos.site/privacy</a></span></span>
       </div>
     </div>
 
@@ -385,13 +385,28 @@
           <span class="line"><span class="c"># Type 'help' to see available commands</span></span>
           <span class="line"></span>
         </div>
-        <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
-          <span style="color:var(--accent)">george@paraschos.site:~$</span>
-          <label for="terminal-input" style="display:none">Terminal command</label>
-          <input id="terminal-input" type="text" autocomplete="off" spellcheck="false"
-                 style="background:transparent; border:none; outline:none; color:var(--text);
-                 font-family:'JetBrains Mono',monospace; font-size:13px; flex:1;
-                 cursor:text;" />
+        <div style="position:relative;">
+          <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+            <span style="color:var(--accent)">george@paraschos.site:~$</span>
+            <label for="terminal-input" style="display:none">Terminal command</label>
+            <input id="terminal-input" type="text" autocomplete="off" spellcheck="false"
+                   style="background:transparent; border:none; outline:none; color:var(--text);
+                   font-family:'JetBrains Mono',monospace; font-size:13px; flex:1;
+                   cursor:text;" />
+          </div>
+          <div id="terminal-autocomplete" style="
+            display:none;
+            position:absolute;
+            bottom:100%;
+            left:0;
+            background:#252526;
+            border:1px solid #3C3C3C;
+            border-radius:4px;
+            min-width:200px;
+            z-index:100;
+            font-family:'JetBrains Mono',monospace;
+            font-size:12px;
+          "></div>
         </div>
       </div>
     </div>
@@ -426,6 +441,7 @@
         </div>
       </div>
     </div>
+
     <!-- contributions.svg -->
     <div class="file-section" id="file-contributions">
       <div class="code-content">
@@ -437,20 +453,16 @@
         </div>
       </div>
     </div>
-  </div><!-- /editor -->
-</div><!-- /editor-area -->
 
-<!-- CONSENT BANNER -->
-<div class="consent-banner" id="consent-banner" style="display:none" role="dialog" aria-label="Analytics consent">
-  <span class="c">// This site can use Google Analytics and an anonymous visit counter</span>
-  <span class="c">// to see which pages are useful. No ads, no fingerprinting, no tracking</span>
-  <span class="c">// across other sites. The site works exactly the same either way.</span>
-  <div class="consent-actions">
-    <button class="consent-btn primary" id="consent-accept">Allow analytics</button>
-    <button class="consent-btn" id="consent-decline">Decline</button>
-    <a href="/privacy.html" class="consent-link">privacy.md</a>
+  </div><!-- /editor -->
+
+  <!-- MINIMAP -->
+  <div class="minimap" id="minimap">
+    <canvas id="minimap-canvas"></canvas>
+    <div class="minimap-slider" id="minimap-slider"></div>
   </div>
-</div>
+
+</div><!-- /editor-area -->
 
 <!-- STATUS BAR -->
 <div class="statusbar">

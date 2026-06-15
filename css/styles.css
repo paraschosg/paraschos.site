@@ -577,3 +577,28 @@ body.focus-mode .editor {
     }
     .profile-card { transition: none; }
 }
+
+/* ── COLLAPSIBLE SIDEBAR ── */
+.sidebar-group-items {
+    overflow: hidden;
+    transition: max-height 0.2s ease;
+    max-height: 500px;
+}
+
+.sidebar-group-items.collapsed {
+    max-height: 0;
+}
+
+.sidebar-group-label::before {
+    transition: transform 0.2s;
+    display: inline-block;
+}
+
+.sidebar-group-label.collapsed::before {
+    transform: rotate(-90deg);
+}
+
+/* ── TERMINAL AUTOCOMPLETE ── */
+.autocomplete-item:hover {
+    background: #2A2D2E !important;
+}
