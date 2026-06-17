@@ -925,3 +925,99 @@ if (consentBanner) {
     }
     // 'denied' → banner stays hidden, nothing loads.
 }
+
+// Collapsible sidebar groups
+function toggleSidebarGroup(label) {
+    const items = label.nextElementSibling;
+    const isCollapsed = items.classList.contains('collapsed');
+    items.classList.toggle('collapsed', !isCollapsed);
+    label.classList.toggle('collapsed', !isCollapsed);
+}
+
+// Terminal Autocomplete
+const autocompleteEl = document.getElementById('terminal-autocomplete');
+const allCommands = Object.keys(commands);
+let selectedIndex = -1;
+let currentSuggestions = [];
+
+function showAutocomplete(input) {
+    if (!input) {
+        autocompleteEl.style.display = 'none';
+        return;
+    }
+    currentSuggestions = allCommands.filter(cmd => cmd.startsWith(input) && cmd !== input);
+    if (currentSuggestions.length === 0) {
+        autocompleteEl.style.display = 'none';
+        return;
+    }
+    selectedIndex = -1;
+    autocompleteEl.innerHTML = currentSuggestions.map((cmd, i) => `
+    <div class="autocomplete-item" data-index="${i}" onclick="selectAutocomplete('${cmd}')"
+      style="padding:4px 12px; color:#D4D4D4; cursor:pointer;">
+      <span style="color:#569CD6">${cmd.slice(0, terminalInput.value.length)}</span><span style="color:#858585">${cmd.slice(terminalInput.value.length)}</span>
+    </div>
+  `).join('');
+    autocompleteEl.style.display = 'block';
+}
+
+function selectAutocomplete(cmd) {
+    terminalInput.value = cmd;
+    autocompleteEl.style.display = 'none';
+    currentSuggestions = [];
+    selectedIndex = -1;
+    terminalInput.focus();
+}
+
+function updateAutocompleteHighlight() {
+    document.querySelectorAll('.autocomplete-item').forEach((el, i) => {
+        el.style.background = i === selectedIndex ? '#37373D' : 'transparent';
+    });
+}
+
+if (terminalInput) {
+    terminalInput.addEventListener('input', () => {
+        showAutocomplete(terminalInput.value.trim().toLowerCase());
+    });
+
+    // Override keydown to handle autocomplete navigation
+    terminalInput.addEventListener('keydown', (e) => {
+        if (autocompleteEl.style.display === 'block') {
+            if (e.key === 'ArrowDown') {
+                selectedIndex = Math.min(selectedIndex + 1, currentSuggestions.length - 1);
+                updateAutocompleteHighlight();
+                e.preventDefault();
+                return;
+            }
+            if (e.key === 'ArrowUp') {
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateAutocompleteHighlight();
+                e.preventDefault();
+                return;
+            }
+            if (e.key === 'Tab' || e.key === 'Enter') {
+                if (selectedIndex >= 0) {
+                    selectAutocomplete(currentSuggestions[selectedIndex]);
+                    if (e.key === 'Tab') e.preventDefault();
+                    return;
+                }
+                if (e.key === 'Tab' && currentSuggestions.length > 0) {
+                    selectAutocomplete(currentSuggestions[0]);
+                    e.preventDefault();
+                    return;
+                }
+            }
+            if (e.key === 'Escape') {
+                autocompleteEl.style.display = 'none';
+                e.preventDefault();
+                return;
+            }
+        }
+    }, true);
+
+    // Hide autocomplete when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#terminal-autocomplete') && e.target !== terminalInput) {
+            autocompleteEl.style.display = 'none';
+        }
+    });
+}
